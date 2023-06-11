@@ -1,0 +1,13 @@
+# Reactor information
+V_reactor: 1 #L
+
+# Parameters
+mu_max: 0.2477  # [1/h]
+Ks: 1.4344  # [g/L]
+Ks_qs: 2.6784  # [g/L]
+Ki: 688309  # [g/L]
+qs_max: 1.4075  # [g_substrate/g_biomass*h]
+
+# Initial conditions
+X0: 0.5  # Initial biomass [g/L]
+S0: 100.0  # Initial substrate concentration [g/L]
