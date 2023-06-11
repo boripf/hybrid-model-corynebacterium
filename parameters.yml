@@ -10,4 +10,4 @@ qs_max: 1.4075  # [g_substrate/g_biomass*h]
 
 # Initial conditions
 X0: 0.5  # Initial biomass [g/L]
-S0: 100.0  # Initial substrate concentration [g/L]
+S0: 30.0  # Initial substrate concentration [g/L]

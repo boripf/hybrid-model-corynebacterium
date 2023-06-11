@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def model_basic(param, t0, t_end, dt):
     """
@@ -102,3 +104,16 @@ def model_inhibition(param, t0, t_end, dt):
         substrate[i] = substrate[i-1] + dS_dt * dt
 
     return time, biomass, substrate
+
+def plot_simulation(time, biomass, substrate):
+    # import experimental data
+    df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
+
+    plt.plot(time, biomass, label='Biomass')
+    plt.plot(time, substrate, label='Substrate')
+    plt.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='purple')
+    plt.xlabel('Time [h]')
+    plt.ylabel('Concentration [g/L]')
+    plt.legend()
+    
+    return plt.show()
