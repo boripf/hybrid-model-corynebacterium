@@ -5,6 +5,262 @@ import matplotlib.pyplot as plt
 def model_basic(param, t0, t_end, dt):
     """
     Simulates the fermentation process based on the provided parameters.
+    Args:
+        params (dict): Dictionary containing the model parameters.
+        t0 (float): Initial time.
+        t_end (float): End time.
+        dt (float): Time step size.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+    """
+
+    # Extract parameters
+    mu_max = param['mu_max']
+    Ks = param['Ks']
+    Ks_qs = param['Ks_qs']
+    qs_max = param['qs_max']
+    X0 = param['X0']
+    S0 = param['S0']
+
+    # Number of time steps
+    num_steps = int((t_end - t0) / dt) + 1
+
+    # Arrays to store results
+    time = np.linspace(t0, t_end, num_steps)
+    biomass = np.zeros(num_steps)
+    substrate = np.zeros(num_steps)
+
+    # Set initial values
+    biomass[0] = X0
+    substrate[0] = S0
+
+    # Simulation loop
+    for i in range(1, num_steps):
+        # Calculate growth rate and substrate uptake rate
+        c_glucose = substrate[i-1]
+
+        mu = mu_max * c_glucose / (c_glucose + Ks)
+        qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+
+        # Update biomass and substrate concentrations
+        dX_dt = mu * biomass[i-1]
+        dS_dt = -qs * biomass[i-1]
+        biomass[i] = biomass[i-1] + dX_dt * dt
+        substrate[i] = substrate[i-1] + dS_dt * dt
+
+    return time, biomass, substrate
+
+def model_basic_logistic_mu(param, t0, t_end, dt):
+    """
+    Simulates the fermentation process based on the provided parameters.
+    Args:
+        params (dict): Dictionary containing the model parameters.
+        t0 (float): Initial time.
+        t_end (float): End time.
+        dt (float): Time step size.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+    """
+
+    # Extract parameters
+    mu_max = param['mu_max']
+    Ks = param['Ks']
+    Ks_qs = param['Ks_qs']
+    qs_max = param['qs_max']
+    X0 = param['X0']
+    S0 = param['S0']
+    X_max = param['X_max']
+
+    # Number of time steps
+    num_steps = int((t_end - t0) / dt) + 1
+
+    # Arrays to store results
+    time = np.linspace(t0, t_end, num_steps)
+    biomass = np.zeros(num_steps)
+    substrate = np.zeros(num_steps)
+
+    # Set initial values
+    biomass[0] = X0
+    substrate[0] = S0
+
+    # Simulation loop
+    for i in range(1, num_steps):
+        # Calculate growth rate and substrate uptake rate
+        c_glucose = substrate[i-1]
+
+        mu = mu_max * (1 - (biomass[i-1]/ X_max))
+        qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+
+        # Update biomass and substrate concentrations
+        dX_dt = mu * biomass[i-1]
+        dS_dt = -qs * biomass[i-1]
+        biomass[i] = biomass[i-1] + dX_dt * dt
+        substrate[i] = substrate[i-1] + dS_dt * dt
+
+    return time, biomass, substrate
+
+def model_monod_logistic_mu(param, t0, t_end, dt):
+    """
+    Simulates the fermentation process based on the provided parameters.
+    Args:
+        params (dict): Dictionary containing the model parameters.
+        t0 (float): Initial time.
+        t_end (float): End time.
+        dt (float): Time step size.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+    """
+
+    # Extract parameters
+    mu_max = param['mu_max']
+    Ks = param['Ks']
+    Ks_qs = param['Ks_qs']
+    qs_max = param['qs_max']
+    X0 = param['X0']
+    S0 = param['S0']
+    X_max = param['X_max']
+
+    # Number of time steps
+    num_steps = int((t_end - t0) / dt) + 1
+
+    # Arrays to store results
+    time = np.linspace(t0, t_end, num_steps)
+    biomass = np.zeros(num_steps)
+    substrate = np.zeros(num_steps)
+
+    # Set initial values
+    biomass[0] = X0
+    substrate[0] = S0
+
+    # Simulation loop
+    for i in range(1, num_steps):
+        # Calculate growth rate and substrate uptake rate
+        c_glucose = substrate[i-1]
+
+        mu = mu_max * (c_glucose / (c_glucose + Ks)) * (1 - (biomass[i-1]/ X_max))
+        qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+
+        # Update biomass and substrate concentrations
+        dX_dt = mu * biomass[i-1]
+        dS_dt = -qs * biomass[i-1]
+        biomass[i] = biomass[i-1] + dX_dt * dt
+        substrate[i] = substrate[i-1] + dS_dt * dt
+
+    return time, biomass, substrate
+
+def model_monod_inhib_logistic_mu(param, t0, t_end, dt):
+    """
+    Simulates the fermentation process based on the provided parameters.
+    Args:
+        params (dict): Dictionary containing the model parameters.
+        t0 (float): Initial time.
+        t_end (float): End time.
+        dt (float): Time step size.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+    """
+
+    # Extract parameters
+    mu_max = param['mu_max']
+    Ks = param['Ks']
+    Ks_qs = param['Ks_qs']
+    Ki = param['Ki']
+    qs_max = param['qs_max']
+    X0 = param['X0']
+    S0 = param['S0']
+    X_max = param['X_max']
+
+    # Number of time steps
+    num_steps = int((t_end - t0) / dt) + 1
+
+    # Arrays to store results
+    time = np.linspace(t0, t_end, num_steps)
+    biomass = np.zeros(num_steps)
+    substrate = np.zeros(num_steps)
+
+    # Set initial values
+    biomass[0] = X0
+    substrate[0] = S0
+
+    # Simulation loop
+    for i in range(1, num_steps):
+        # Calculate growth rate and substrate uptake rate
+        c_glucose = substrate[i-1]
+
+        mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/Ki))) * (1 - (biomass[i-1]/ X_max))
+        qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+
+        # Update biomass and substrate concentrations
+        dX_dt = mu * biomass[i-1]
+        dS_dt = -qs * biomass[i-1]
+        biomass[i] = biomass[i-1] + dX_dt * dt
+        substrate[i] = substrate[i-1] + dS_dt * dt
+
+    return time, biomass, substrate
+
+def model_basic_fedbatch(param, t0, t_end, dt):
+    """
+    Simulates the fermentation process based on the provided parameters.
+    Args:
+        params (dict): Dictionary containing the model parameters.
+        t0 (float): Initial time.
+        t_end (float): End time.
+        dt (float): Time step size.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+    """
+
+    # Extract parameters
+    mu_max = param['mu_max']
+    Ks = param['Ks']
+    Ks_qs = param['Ks_qs']
+    qs_max = param['qs_max']
+    X0 = param['X0']
+    S0 = param['S0']
+    X_max = param['X_max']
+    Yxs = param['Yxs']
+
+    # Number of time steps
+    num_steps = int((t_end - t0) / dt) + 1
+
+    # Arrays to store results
+    time = np.linspace(t0, t_end, num_steps)
+    biomass = np.zeros(num_steps)
+    substrate = np.zeros(num_steps)
+
+    # Set initial values
+    biomass[0] = X0
+    substrate[0] = S0
+
+    # Simulation loop
+    for i in range(1, num_steps):
+        # Calculate growth rate and substrate uptake rate
+        c_glucose = substrate[i-1]
+
+        mu = mu_max * (1 - (biomass[i-1]/ X_max))
+        qs = 1/Yxs
+
+        # Update biomass and substrate concentrations
+        dX_dt = mu * biomass[i-1]
+        dS_dt = -qs * biomass[i-1]
+        biomass[i] = biomass[i-1] + dX_dt * dt
+        substrate[i] = substrate[i-1] + dS_dt * dt
+
+    return time, biomass, substrate
+
+def model_fedbatch(param, t0, t_end, dt):
+    """
+    Simulates the fermentation process based on the provided parameters.
 
     Args:
         params (dict): Dictionary containing the model parameters.
@@ -50,14 +306,12 @@ def model_basic(param, t0, t_end, dt):
 
         # Calculate growth rate and substrate uptake rate
         c_glucose = substrate[i-1]
-        if c_glucose < 0:
-            c_glucose = 0
-        mu = mu_max * c_glucose / (c_glucose + Ks)
-        qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1/np.exp(biomass[-1] * lag))
+        qs = qs_max * c_glucose / (Ks_qs + c_glucose) #* (1/np.exp(biomass[-1] * lag))
+        mu = qs * Yxs
 
         # Update biomass and substrate concentrations
-        dX_dt = mu * biomass[i-1] # [g/(Lh)]
-        dS_dt = (F_glu[i] * c_gluc_feed/ Volume[i]) - qs * biomass[i-1] # [g/(Lh)]
+        dX_dt = (mu - F_glu[i-1]/Volume[i-1]) * biomass[i-1] # [g/(Lh)]
+        dS_dt = (F_glu[i-1] * (c_gluc_feed - c_glucose)/ Volume[i]) - qs * biomass[i-1] # [g/(Lh)]
         biomass[i] = biomass[i-1] + dX_dt * dt
         substrate[i] = substrate[i-1] + dS_dt * dt
 
@@ -167,14 +421,19 @@ def model_inhibition(param, t0, t_end, dt):
 
     return time, biomass, substrate
 
-def plot_simulation(time, biomass, substrate):
+def plot_simulation(time, biomass, substrate, title):
     # import experimental data
     df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
+    fig, ax = plt.subplots()
 
-    plt.plot(time, biomass, label='Biomass sim')
-    plt.plot(time, substrate, label='Substrate sim')
-    plt.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='purple')
+    ax_2nd = ax.twinx()
+    ax.plot(time, biomass, label='Biomass sim', color='blue')
+    ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
+    ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='purple')
     plt.xlabel('Time [h]')
-    plt.ylabel('Concentration [g/L]')
-    plt.legend()
+    ax.set_ylabel('Biomass [g/L]')
+    ax_2nd.set_ylabel('Substrate [g/L]')
+    ax.legend()
+    ax_2nd.legend()
+    fig.title(title)
     plt.show()
