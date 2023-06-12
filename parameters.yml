@@ -1,13 +1,15 @@
 # Reactor information
-V_reactor: 1 #L
+V_reactor: 1 #L ANPASSEN: verändert sich
 
 # Parameters
-mu_max: 0.2477  # [1/h]
-Ks: 1.4344  # [g/L]
-Ks_qs: 2.6784  # [g/L]
-Ki: 688309  # [g/L]
-qs_max: 1.4075  # [g_substrate/g_biomass*h]
+mu_max: 0.3514  # [1/h]
+m_s: 0.2 # KOMPLETT GERATEN --NACHSCHAUEN
+Ks: 0.0949  # [g/L]
+Ks_qs: 2.6784  # [g/L] ANPASSEN
+Ki: 688309  # [g/L] ANPASSEN
+qs_max: 0.64  # [g_substrate/g_biomass*h] ANPASSEN
+Yxs: 0.4857 # [g_biomass/g_substrate]
 
 # Initial conditions
 X0: 0.5  # Initial biomass [g/L]
-S0: 30.0  # Initial substrate concentration [g/L]
+S0: 10.0  # Initial substrate concentration [g/L]
