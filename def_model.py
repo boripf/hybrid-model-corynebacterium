@@ -219,8 +219,14 @@ def model_basic_fedbatch(param, t0, t_end, dt):
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
     """
+    # Extract experimental data
+    df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
+    F_glu = df_exp['Glucose feed [L/min]']
+    print(F_glu.shape)
+    Volume = df_exp['Volume [L]']
 
     # Extract parameters
+    c_gluc_feed = param['c_glu_feed']
     mu_max = param['mu_max']
     Ks = param['Ks']
     Ks_qs = param['Ks_qs']
@@ -237,6 +243,7 @@ def model_basic_fedbatch(param, t0, t_end, dt):
     time = np.linspace(t0, t_end, num_steps)
     biomass = np.zeros(num_steps)
     substrate = np.zeros(num_steps)
+    dS = np.zeros(num_steps)
 
     # Set initial values
     biomass[0] = X0
@@ -245,18 +252,20 @@ def model_basic_fedbatch(param, t0, t_end, dt):
     # Simulation loop
     for i in range(1, num_steps):
         # Calculate growth rate and substrate uptake rate
-        c_glucose = substrate[i-1]
+        if substrate[i-1] < 0:
+             substrate[i-1] = 0
 
         mu = mu_max * (1 - (biomass[i-1]/ X_max))
-        qs = 1/Yxs
+        qs = qs_max * substrate[i-1] / (Ks_qs + substrate[i-1]) # 1/Yxs
 
         # Update biomass and substrate concentrations
         dX_dt = mu * biomass[i-1]
-        dS_dt = -qs * biomass[i-1]
+        dS_dt = ((F_glu[i]*60 / Volume[i]) * (c_gluc_feed - substrate[i-1])) - qs * biomass[i-1]
+        dS[i] = dS_dt
         biomass[i] = biomass[i-1] + dX_dt * dt
         substrate[i] = substrate[i-1] + dS_dt * dt
 
-    return time, biomass, substrate
+    return time, biomass, substrate, dS, Volume
 
 def model_fedbatch(param, t0, t_end, dt):
     """
@@ -421,7 +430,7 @@ def model_inhibition(param, t0, t_end, dt, Ki):
 
     return time, biomass, substrate
 
-def plot_simulation(time, biomass, substrate, title):
+def plot_simulation(time, biomass, substrate, dS_dt, title):
     # import experimental data
     df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
     fig, ax = plt.subplots()
@@ -429,9 +438,10 @@ def plot_simulation(time, biomass, substrate, title):
     ax_2nd = ax.twinx()
     ax.plot(time, biomass, label='Biomass sim', color='blue')
     ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
+    ax.plot(time, dS_dt, color='green')
     ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='purple')
     plt.xlabel('Time [h]')
-    ax.set_ylabel('Biomass [g/L]')
+    ax.set_ylabel('Biomass [g/L] & Volume [L]')
     ax_2nd.set_ylabel('Substrate [g/L]')
     ax.legend()
     ax_2nd.legend()
