@@ -10,6 +10,7 @@ Ki: 688309  # [g/L] ANPASSEN
 qs_max: 0.64  # [g_substrate/g_biomass*h] ANPASSEN
 Yxs: 0.4857 # [g_biomass/g_substrate]
 c_glu_feed: 350 # [g/L]
+lag: 0.0057 
 
 # Initial conditions
 X0: 0.5  # Initial biomass [g/L]

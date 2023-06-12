@@ -31,6 +31,7 @@ def model_basic(param, t0, t_end, dt):
     Yxs = param['Yxs']
     X0 = param['X0']
     S0 = param['S0']
+    lag = param['lag']
 
     # Number of time steps
     num_steps = int((t_end - t0) / dt) + 1
@@ -49,12 +50,14 @@ def model_basic(param, t0, t_end, dt):
 
         # Calculate growth rate and substrate uptake rate
         c_glucose = substrate[i-1]
+        if c_glucose < 0:
+            c_glucose = 0
         mu = mu_max * c_glucose / (c_glucose + Ks)
-        qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+        qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1/np.exp(biomass[-1] * lag))
 
         # Update biomass and substrate concentrations
         dX_dt = mu * biomass[i-1] # [g/(Lh)]
-        dS_dt = (F_glu[i] * (c_gluc_feed - c_glucose)/ Volume[i]) - qs * biomass[i-1] # [g/(Lh)]
+        dS_dt = (F_glu[i] * c_gluc_feed/ Volume[i]) - qs * biomass[i-1] # [g/(Lh)]
         biomass[i] = biomass[i-1] + dX_dt * dt
         substrate[i] = substrate[i-1] + dS_dt * dt
 
