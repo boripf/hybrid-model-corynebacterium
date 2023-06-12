@@ -154,7 +154,7 @@ def model_monod_logistic_mu(param, t0, t_end, dt):
 
     return time, biomass, substrate
 
-def model_monod_inhib_logistic_mu(param, t0, t_end, dt):
+def model_monod_inhib_logistic_mu(param, t0, t_end, dt, Ki):
     """
     Simulates the fermentation process based on the provided parameters.
     Args:
@@ -172,7 +172,7 @@ def model_monod_inhib_logistic_mu(param, t0, t_end, dt):
     mu_max = param['mu_max']
     Ks = param['Ks']
     Ks_qs = param['Ks_qs']
-    Ki = param['Ki']
+    #Ki = param['Ki']
     qs_max = param['qs_max']
     X0 = param['X0']
     S0 = param['S0']
@@ -195,7 +195,7 @@ def model_monod_inhib_logistic_mu(param, t0, t_end, dt):
         # Calculate growth rate and substrate uptake rate
         c_glucose = substrate[i-1]
 
-        mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/Ki))) * (1 - (biomass[i-1]/ X_max))
+        mu = mu_max * (c_glucose / (c_glucose + Ks + ((c_glucose**2) / Ki))) * (1 - (biomass[i-1]/ X_max))
         qs = qs_max * c_glucose / (Ks_qs + c_glucose)
 
         # Update biomass and substrate concentrations
@@ -369,7 +369,7 @@ def model_maintenance(param, t0, t_end, dt):
 
     return time, biomass, substrate
 
-def model_inhibition(param, t0, t_end, dt):
+def model_inhibition(param, t0, t_end, dt, Ki):
     """
     Simulates the fermentation process based on the provided parameters.
 
@@ -389,7 +389,7 @@ def model_inhibition(param, t0, t_end, dt):
     mu_max = param['mu_max']
     Ks = param['Ks']
     Ks_qs = param['Ks_qs']
-    Ki = param['Ki']
+    #Ki = param['Ki']
     qs_max = param['qs_max']
     X0 = param['X0']
     S0 = param['S0']
@@ -435,5 +435,5 @@ def plot_simulation(time, biomass, substrate, title):
     ax_2nd.set_ylabel('Substrate [g/L]')
     ax.legend()
     ax_2nd.legend()
-    fig.title(title)
+    plt.title(title)
     plt.show()
