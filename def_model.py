@@ -511,6 +511,6 @@ def plot_simulation(time, biomass, substrate, dS_dt, title):
     ax.set_ylabel('Biomass [g/L] & dS/dt [g/L]')
     ax_2nd.set_ylabel('Substrate [g/L]')
     ax.legend(loc='upper left')
-    ax_2nd.legend(loc='lower left')
+    ax_2nd.legend(loc='upper center')
     plt.title(title)
     plt.show()
