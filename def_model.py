@@ -17,12 +17,18 @@ def model_basic(param, t0, t_end, dt):
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
     """
+    # Extract data from experiment
+    df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
+    F_glu = df_exp['Glucose feed [L/h]']
+    Volume = df_exp['Volume [L]']
 
     # Extract parameters
+    c_gluc_feed = param['c_glu_feed']
     mu_max = param['mu_max']
     Ks = param['Ks']
     Ks_qs = param['Ks_qs']
     qs_max = param['qs_max']
+    Yxs = param['Yxs']
     X0 = param['X0']
     S0 = param['S0']
 
@@ -40,14 +46,15 @@ def model_basic(param, t0, t_end, dt):
 
     # Simulation loop
     for i in range(1, num_steps):
+
         # Calculate growth rate and substrate uptake rate
         c_glucose = substrate[i-1]
         mu = mu_max * c_glucose / (c_glucose + Ks)
         qs = qs_max * c_glucose / (Ks_qs + c_glucose)
 
         # Update biomass and substrate concentrations
-        dX_dt = mu * biomass[i-1]
-        dS_dt = -qs * biomass[i-1]
+        dX_dt = mu * biomass[i-1] # [g/(Lh)]
+        dS_dt = (F_glu[i] * (c_gluc_feed - c_glucose)/ Volume[i]) - qs * biomass[i-1] # [g/(Lh)]
         biomass[i] = biomass[i-1] + dX_dt * dt
         substrate[i] = substrate[i-1] + dS_dt * dt
 
