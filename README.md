@@ -7,9 +7,9 @@ Hybrid semi-parametric model that includes a mechanistic model and a data-driven
 - fermentation raw data (contains all the raw experimental data)
     - data_combined.csv (contains the preprocessed data with calculated parameters and is used for further processing)
 - images (contains plots of simulations)
-- 01_preprocessing.ipynb (preprocessing of the raw data, output: data_combined.csv)
-- 02_model.py (contains all ODEs for mu, qs, dX/dt, dS/dt and the model itself)
-- 03_simulation.ipynb (running the simulation based on the imported model from def_model.py, output: plots in folder images)
+- A_preprocessing.ipynb (preprocessing of the raw data, output: data_combined.csv)
+- B_model.py (contains all ODEs for mu, qs, dX/dt, dS/dt and the model itself)
+- C_simulation.ipynb (running the simulation based on the imported model from def_model.py, output: plots in folder images)
 - matlab_sim_fedbatch.m (matlab code for a fedbatch simulation)
 - requirements.txt (pip install -r requirements.txt - to install all required packages)
 
