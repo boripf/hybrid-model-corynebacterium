@@ -1,13 +1,10 @@
-# Reactor information
-V_reactor: 1 #L ANPASSEN: verändert sich
-
 # Parameters
-mu_max: 0.3514  # [1/h]
-m_s: 0.0835 # from 2015 Shen
-Ks: 0.0949  # [g/L]
-Ks_qs: 2.6784  # [g/L] ANPASSEN
-Ki: 7.150  # [g/L] ANPASSEN
-qs_max: 0.64  # [g_substrate/g_biomass*h] ANPASSEN
+mu_max: 0.2 # [1/h]  0.3514 0.2
+m_s: 0.1 # from 2015 Shen
+Ks: 7.0  # [g/L]
+Ks_qs: 0.035  # [g/L] 
+Ki: 7.150  # [g/L]
+qs_max: 0.57  # [g_substrate/g_biomass*h]
 Yxs:  0.4857 #[g_biomass/g_substrate] from 2015 Shen: 0.5264
 c_glu_feed: 350 # [g/L]
 lag: 0.0057 
