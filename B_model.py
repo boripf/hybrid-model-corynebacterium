@@ -13,21 +13,23 @@ def mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max):
     # -- MONOD + LOGISTIC + INHIBITION / insert: mu_max, c_glucose, Ks, Ki, c_biomass, X_max
     # mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
     return mu
-def qs_eq(qs_max, c_glucose, Ks_qs):
+def qs_eq(qs_max, c_glucose, Ks_qs, Ki, glu_met):
     # -- MONOD / insert: qs_max, c_glucose, Ks_qs
-    qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+    # qs = qs_max * c_glucose / (Ks_qs + c_glucose)
+    # -- MONOD + NON COMPETITIVE INHIBITION / insert: qs_max, c_glucose, Ks_qs, Ki, glu_met
+    qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (Ki / (Ki + glu_met))
     # -- YIELD / insert: Yxs, f_glucose, V
     # qs = 1/Yxs * f_glucose / V #NOT SURE IF CORRECT because g_S/g_X but not per h
     # -- MONOD + METABOLIZED GLU / insert: qs_max, c_glucose, Ks_qs, glu_met, lag
     # qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(glu_met * lag)))
     return qs
-def dXdt(qs, Yxs, c_biomass, f_glucose, V):
+def dXdt(mu, c_biomass, f_glucose, V):
     # -- BATCH + mu / insert: mu, c_biomass
     #dXdt = mu * c_biomass
     # -- FEDBATCH + mu / insert: mu, c_biomass, f_glucose, V
-    # dXdt = mu * c_biomass - c_biomass * f_glucose / V
+    dXdt = mu * c_biomass - c_biomass * f_glucose / V
     # -- FEDBATCH + Yield / insert: qs, Yxs, c_biomass, f_glucose, V
-    dXdt = qs * Yxs * c_biomass - c_biomass * f_glucose / V
+    # dXdt = qs * Yxs * c_biomass - c_biomass * f_glucose / V
     return dXdt
 def dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s):
     # -- BATCH / insert: qs, c_biomass
@@ -101,11 +103,11 @@ def model(param):
 
         # Update growth and glucose uptake rate
         mu = mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max)
-        qs = qs_eq(qs_max, c_glucose, Ks_qs)
+        qs = qs_eq(qs_max, c_glucose, Ks_qs, Ki, glu_met)
         S_met[i] = qs * c_biomass * V
 
         # Update biomass and substrate concentrations
-        dX_dt = dXdt(qs, Yxs, c_biomass, f_glucose, V)
+        dX_dt = dXdt(mu, c_biomass, f_glucose, V)
         dS_dt[i] = dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s)
         biomass[i] = c_biomass + dX_dt * dt
         substrate[i] = c_glucose + dS_dt[i] * dt
