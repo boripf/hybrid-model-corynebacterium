@@ -13,3 +13,4 @@ X_max: 19.2 # [g/L]
 # Initial conditions
 X0: 0.5  # Initial biomass [g/L]
 S0: 10.0  # Initial substrate concentration [g/L]
+V0: 1.0 # Initial volume in the reactor [L]
