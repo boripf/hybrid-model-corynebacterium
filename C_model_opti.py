@@ -100,9 +100,9 @@ def model_optimization(param, parameters, mu_eq, num_mu, qs_eq, num_qs):
         substrate[i] = c_glucose + dS_dt[i] * dt
         volume[i] = V + dV_dt
 
-    return time, biomass, substrate
+    return time, biomass, substrate, volume
 
-def plot_estimation(time, biomass, substrate, title, plot_name, set_num):
+def plot_estimation(time, biomass, substrate, volume, title, plot_name, set_num):
     # import experimental data
     df_exp = pd.read_csv('data/data_combined.csv')
 
@@ -110,6 +110,7 @@ def plot_estimation(time, biomass, substrate, title, plot_name, set_num):
     ax_2nd = ax.twinx()
 
     ax.plot(time, biomass, label='Biomass sim', color='blue')
+    ax.plot(time, volume, label='Volume sim', color='red')
     ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
     ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
     ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
@@ -127,4 +128,4 @@ def plot_estimation(time, biomass, substrate, title, plot_name, set_num):
     ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncols=4)
 
     plt.title(title)
-    plt.savefig(f'data/estimation/mu_max/set{set_num}/{plot_name}')
+    plt.savefig(f'data/estimation/Ks/set{set_num}/{plot_name}')
