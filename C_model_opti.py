@@ -127,4 +127,4 @@ def plot_estimation(time, biomass, substrate, title, plot_name, set_num):
     ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncols=4)
 
     plt.title(title)
-    plt.savefig(f'data/estimation/set{set_num}/{plot_name}')
+    plt.savefig(f'data/estimation/mu_max/set{set_num}/{plot_name}')
