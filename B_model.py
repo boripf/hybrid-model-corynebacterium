@@ -233,3 +233,5 @@ def plot_simulation(time, biomass, substrate, dS_dt, title):
     # -- FEDBATCH + MAINTENANCE / insert: f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s
     dSdt = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass - m_s * c_biomass
     return dSdt'''
+
+
