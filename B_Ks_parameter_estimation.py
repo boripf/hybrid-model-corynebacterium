@@ -19,7 +19,7 @@ from scipy.optimize import curve_fit
 # 2try)  to load the substrat and mu data directly 
 
 # Read data from Excel file
-df = pd.read_excel('Yxs_table.xlsx')
+df = pd.read_excel('data/Yxs_table.xlsx')
 
 
 # Extract growth rate and substrate concentration data
