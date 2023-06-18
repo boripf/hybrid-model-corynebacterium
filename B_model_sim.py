@@ -3,27 +3,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Calculate growth rate and substrate uptake rate
-def mu_eq(mu_max, c_glucose, Ks, Ki, c_biomass, X_max):
+def mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max):
     # -- MONOD / insert: mu_max, c_glucose, Ks
-    mu0 = mu_max * c_glucose / (c_glucose + Ks)
+    #mu = mu_max * c_glucose / (c_glucose + Ks)
     # -- LOGISTIC / insert: mu_max, c_biomass, X_max
-    mu1 = mu_max * (1 - (c_biomass/ X_max)) 
+    #mu = mu_max * (1 - (c_biomass/ X_max)) 
     # -- MONOD + LOGISTIC / insert: mu_max, c_glucose, Ks, c_biomass, X_max
-    mu2 = mu_max * (c_glucose / (c_glucose + Ks)) * (1 - (c_biomass/ X_max))
+    mu = mu_max * (c_glucose / (c_glucose + Ks)) * (1 - (c_biomass/ X_max))
     # -- MONOD + LOGISTIC + INHIBITION / insert: mu_max, c_glucose, Ks, Ki, c_biomass, X_max
-    mu3 = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
-    return mu0, mu1, mu2, mu3
+    #mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
+    return mu
 
-def qs_eq(qs_max, c_glucose, Ks_qs, Ki, glu_met, Yxs, f_glucose, V, lag):
+def qs_eq(Yxs, f_glucose, V):
     # -- MONOD / insert: qs_max, c_glucose, Ks_qs
-    qs0 = qs_max * c_glucose / (Ks_qs + c_glucose)
+    #qs = qs_max * c_glucose / (Ks_qs + c_glucose)
     # -- MONOD + NON COMPETITIVE INHIBITION / insert: qs_max, c_glucose, Ks_qs, Ki, glu_met
-    qs1 = qs_max * c_glucose / (Ks_qs + c_glucose) * (Ki / (Ki + glu_met))
+    #s = qs_max * c_glucose / (Ks_qs + c_glucose) * (Ki / (Ki + glu_met))
     # -- YIELD / insert: Yxs, f_glucose, V
-    qs2 = 1/Yxs * f_glucose / V #NOT SURE IF CORRECT because g_S/g_X but not per h
+    qs = 1/Yxs * f_glucose / V #NOT SURE IF CORRECT because g_S/g_X but not per h
     # -- MONOD + METABOLIZED GLU / insert: qs_max, c_glucose, Ks_qs, glu_met, lag
-    qs3 = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(glu_met * lag)))
-    return qs0, qs1, qs2, qs3
+    #qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(glu_met * lag)))
+    return qs
 
 def dXdt(mu, c_biomass, f_glucose, V):
     # -- BATCH + mu / insert: mu, c_biomass
@@ -64,8 +64,9 @@ def model(param):
     print(num_steps)
 
     # Extract experimental data
-    df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
+    df_exp = pd.read_csv('data/data_combined.csv')
     F_glu = df_exp['Glucose feed [L/min]']*60 # [L/h]
+    F_in = df_exp['Feed total [L/min]']
 
     # Extract parameters
     mu_max = param['mu_max']
@@ -110,13 +111,13 @@ def model(param):
 
         # Update growth and glucose uptake rate
         mu = mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max)
-        qs = qs_eq(qs_max, c_glucose, Ks_qs, Ki, glu_met)
+        qs = qs_eq(Yxs, f_glucose, V)
         S_met[i] = qs * c_biomass * V
 
         # Update biomass and substrate concentrations
         dX_dt = dXdt(mu, c_biomass, f_glucose, V)
         dS_dt[i] = dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s)
-        dV_dt = f_glucose - (0.4/num_steps) # not complete -- somehow add base and acid to it + include samples + evaporation
+        dV_dt = F_in[i] - (0.4/num_steps) # not complete -- somehow add base and acid to it + include samples + evaporation
         biomass[i] = c_biomass + dX_dt * dt
         substrate[i] = c_glucose + dS_dt[i] * dt
         volume[i] = V + dV_dt
