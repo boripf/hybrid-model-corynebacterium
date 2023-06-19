@@ -90,9 +90,9 @@ def model_optimization(param, parameters, mu_eq, num_mu, qs_eq, num_qs):
             qs = qs_eq(qs_max, c_glucose, Ks_qs, glu_met, lag)
 
         S_met[i] = qs * c_biomass * V
-
+        
         # Update biomass and substrate concentrations
-        dX_dt = mu * c_biomass - c_biomass * f_glucose / V
+        dX_dt = mu * c_biomass - c_biomass * F_in[i] / V
         dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass
         dV_dt = F_in[i] - (0.4/num_steps) # not complete -- include samples + evaporation
 

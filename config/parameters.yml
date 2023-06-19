@@ -12,7 +12,7 @@ X_max: 23.16 # [g/L]
 
 # Initial conditions
 X0: 0.5  # Initial biomass [g/L]
-S0: 10.0  # Initial substrate concentration [g/L]
+S0: 6.0  # Initial substrate concentration [g/L]
 V0: 1.0 # Initial volume in the reactor [L]
 
 # 'mu_max', 'X_max', 'Ks', 'Ks_qs', 'Ki', 'Yxs', 'qs_max', 'm_s', 'lag'
