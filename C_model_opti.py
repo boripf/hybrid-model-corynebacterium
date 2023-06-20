@@ -1,6 +1,21 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from pyDOE import lhs
+import os
+
+def get_LHS_samples(num_samples, num_parameters, parameter_bounds):
+    # Generate Latin hypercube samples
+    lhs_samples = lhs(num_parameters, samples=num_samples, criterion='maximin')
+
+    # Rescale the samples to the specified parameter ranges
+    rescaled_samples = []
+    for i in range(num_parameters):
+        # rescaling = lb + lhs_value * (up - lb)
+        rescaling = parameter_bounds[i][0] + lhs_samples[:, i] * (parameter_bounds[i][1] - parameter_bounds[i][0])
+        rescaled_samples.append(rescaling)
+    samples = np.array(rescaled_samples).T
+    return samples
 
 def model_optimization(param, parameters, mu_eq, num_mu, qs_eq, num_qs):
     """
@@ -126,6 +141,15 @@ def plot_estimation(time, biomass, substrate, volume, title, plot_name, set_num)
 
     # Create a single legend using the combined handles and labels
     ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncols=4)
-
     plt.title(title)
-    plt.savefig(f'data/estimation/mu_max/set{set_num}/{plot_name}')
+    
+    # Save images in the corresponding folder
+    directory = f'data/estimation/LHS_sampling/set{set_num}'
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Save the plot in the created directory
+    plt.savefig(os.path.join(directory, plot_name))
+    plt.close()
