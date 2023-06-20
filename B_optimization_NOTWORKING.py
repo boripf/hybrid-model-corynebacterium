@@ -3,7 +3,7 @@ import numpy as np
 import yaml
 from scipy.optimize import minimize
 from sklearn.metrics import mean_squared_error
-from C_model_opti import model_optimization, plot_simulation
+from C_functions_opti import model_optimization, plot_simulation
 
 # Load experimental data
 df_exp = pd.read_csv('fermentation raw data/data_combined.csv')
