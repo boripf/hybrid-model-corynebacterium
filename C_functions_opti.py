@@ -144,7 +144,7 @@ def plot_estimation(time, biomass, substrate, volume, title, plot_name, set_num)
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/estimation/LHS_sampling/set{set_num}'
+    directory = f'data/estimation/LHS_sampling/'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):
