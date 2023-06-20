@@ -40,6 +40,8 @@ growth_rate = growth_rate[valid_values]
 def monod_equation(substrate, μmax, Ks):
     return μmax * substrate / (Ks + substrate)
 
+initial_guess = [0.58, 1.5]  # Initial values for μmax and Ks
+
 # Perform curve fitting
 params, params_covariance = curve_fit(monod_equation, substrate_concentration, growth_rate)
 
