@@ -23,7 +23,7 @@ df = pd.read_excel('data/Yxs_table.xlsx')
 
 
 # Extract growth rate and substrate concentration data
-growth_rate = df['mu [1/h]'].values
+growth_rate = df['mu 2.2 [1/h]'].values
 substrate_concentration = df['Glucose [g/L]'].values
 
 # Check and handle missing values and inf values
@@ -69,3 +69,5 @@ print('Fitted Parameters:')
 print('μmax:', μmax_fit)
 print('Ks:', Ks_fit)
 print('R-squared:', r_squared)
+
+

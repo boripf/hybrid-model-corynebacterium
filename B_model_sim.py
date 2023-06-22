@@ -14,6 +14,7 @@ def mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max):
     #mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
     return mu
 
+
 def qs_eq(Yxs, f_glucose, V):
     # -- MONOD / insert: qs_max, c_glucose, Ks_qs
     #qs = qs_max * c_glucose / (Ks_qs + c_glucose)
@@ -29,7 +30,7 @@ def dXdt(mu, c_biomass, f_glucose, V):
     # -- BATCH + mu / insert: mu, c_biomass
     #dXdt = mu * c_biomass
     # -- FEDBATCH + mu / insert: mu, c_biomass, f_glucose, V
-    dXdt = mu * c_biomass - c_biomass * f_glucose / V
+    dXdt = mu * c_biomass - c_biomass * f_glucose / V 
     # -- FEDBATCH + Yield / insert: qs, Yxs, c_biomass, f_glucose, V
     # dXdt = qs * Yxs * c_biomass - c_biomass * f_glucose / V
     return dXdt
@@ -40,7 +41,7 @@ def dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s):
     # -- FEDBATCH / insert: f_glucose, V, c_glu_feed, c_glucose, c_biomass, qs, c_biomass
     # dSdt = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass
     # -- FEDBATCH + MAINTENANCE / insert: f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s
-    dSdt = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass - m_s * c_biomass
+    dSdt = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass - m_s * c_biomass  
     return dSdt
 
 def model(param):
