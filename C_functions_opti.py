@@ -41,7 +41,7 @@ def model_optimization(param, parameters, mu_eq, num_mu, qs_eq, num_qs):
     df_exp = pd.read_csv('data/data_combined.csv')
     # we can not use that because the total feed contains acid and base
     F_glu = df_exp['Glucose feed [L/min]']*60
-    F_in = df_exp['Feed total [L/min]']
+    F_in = df_exp['Feed total [L/min]']*60
 
     # Extract parameters
     X0 = param['X0']
@@ -87,7 +87,7 @@ def model_optimization(param, parameters, mu_eq, num_mu, qs_eq, num_qs):
 
         # Update growth and glucose uptake rate
         if num_mu == 0:
-            mu = mu_eq(qs_max, c_glucose, Ks_qs)
+            mu = mu_eq(mu_max, c_glucose, Ks)
         elif num_mu == 1:
             mu = mu_eq(mu_max, c_biomass, X_max)
         elif num_mu == 2:
@@ -100,20 +100,24 @@ def model_optimization(param, parameters, mu_eq, num_mu, qs_eq, num_qs):
         elif num_qs == 1:
             qs = qs_eq(qs_max, c_glucose, Ks_qs, Ki, glu_met)
         elif num_qs == 2:
-            qs = qs_eq(Yxs, f_glucose, V)
+            qs = qs_eq(qs_max, c_glucose, Ks_qs, c_biomass, lag)
         elif num_qs == 3:
-            qs = qs_eq(qs_max, c_glucose, Ks_qs, glu_met, lag)
+            qs = qs_eq(mu, Yxs)
+        
+        if num_mu == 4:
+            mu = mu_eq(qs, Yxs)
 
-        S_met[i] = qs * c_biomass * V
+        S_met[i] = qs * c_biomass * dt #[gs/(gx h) * gx/L * h = gs/L]
         
         # Update biomass and substrate concentrations
-        dX_dt = mu * c_biomass - c_biomass * F_in[i] / V
-        dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass
-        dV_dt = F_in[i] - (0.4/num_steps) # not complete -- include samples + evaporation
+        dV_dt = F_in[i] - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
+        dX_dt = mu * c_biomass - (c_biomass / V) * dV_dt # [gx/(Lh)]
+        dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - (qs + m_s) * c_biomass - (c_glucose / V) * dV_dt
+        # [gs/(Lh)]
 
-        biomass[i] = c_biomass + dX_dt * dt
-        substrate[i] = c_glucose + dS_dt[i] * dt
-        volume[i] = V + dV_dt
+        biomass[i] = c_biomass + dX_dt * dt # [gx/L]
+        substrate[i] = c_glucose + dS_dt[i] * dt # [gs/L]
+        volume[i] = V + dV_dt * dt # [L]
 
     return time, biomass, substrate, volume
 
@@ -144,7 +148,7 @@ def plot_estimation(time, biomass, substrate, volume, title, plot_name, set_num)
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/estimation/LHS_sampling/run2'
+    directory = f'data/estimation/new_eq'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):
