@@ -12,8 +12,7 @@ substrate_exp = df_exp['Glucose [g/L]']
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
 
-
-def model_sensitivity_analysis(param, parameters):
+def model_sensitivity_analysis(parameters):
     """
     Simulates the fermentation process based on the provided parameters.
     Args:
@@ -93,12 +92,12 @@ def model_sensitivity_analysis(param, parameters):
         substrate[i] = c_glucose + dS_dt[i] * dt # [gs/L]
         volume[i] = V + dV_dt * dt # [L]
 
-    return time, biomass, substrate
+    return biomass, substrate
 
 # Root mean squared error is the objective function
-def objective_function(parameters):
+def objective_function(p_set):
     # Solve the model using the optimal parameters
-    time_pred, biomass_pred, substrate_pred = model_sensitivity_analysis(param, parameters)  # Solve the model using the current parameters
+    biomass_pred, substrate_pred = model_sensitivity_analysis(p_set)  # Solve the model using the current parameters
     biomass = pd.concat([biomass_exp, pd.Series(biomass_pred)], axis=1, keys=['biomass_exp', 'biomass_pred']).dropna()
     biomass_exp_ = biomass['biomass_exp'].values
     biomass_pred_ = biomass['biomass_pred'].values
