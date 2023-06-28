@@ -3,8 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyDOE import lhs
 import os
-from SALib.sample import saltelli
-from SALib.analyze import sobol
 
 def get_LHS_samples(num_samples, num_parameters, parameter_bounds):
     # Generate Latin hypercube samples
