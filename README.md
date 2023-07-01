@@ -4,9 +4,9 @@ Hybrid semi-parametric model that includes a mechanistic model and a data-driven
 ### Working with Git
 Everyone is working in their own branch (debbi & marc). From there changes can be merged with the main branch. Follow the step by step guide:
 - commit all changes to your own branch
-- switch from your branch to the main branch: git checkout main 
-- get the latest updates: git pull
-- merge the 2 branches: git merge <branch_name>
+- switch from your branch to the main branch: **git checkout main** 
+- get the latest updates: **git pull**
+- merge the 2 branches: **git merge <branch_name>**
 - in the vs code window the merge conflict will pop up
     - for each conflict in a file you can see your own and the main branch version
     - you can decide which version you would like to keep
@@ -14,8 +14,8 @@ Everyone is working in their own branch (debbi & marc). From there changes can b
 - stage the solved conflicts
 - commit the changes to the main branche
 - to continue working in your own branch
-    - checkout to your own branch: git checkout <branch_name>
-    - pull the copy of the main branch: git pull origin main
+    - checkout to your own branch: **git checkout <branch_name>**
+    - pull the copy of the main branch: **git pull origin main**
     
 
 ### Structure
