@@ -83,6 +83,9 @@ def model(param):
     S0 = param['S0']
     V0 = param['V0']
     c_glu_feed = param['c_glu_feed']
+    Yco2_x = param['Yco2_x']
+    
+
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
@@ -91,6 +94,8 @@ def model(param):
     volume = np.zeros(num_steps)
     S_met = np.zeros(num_steps)
     dS_dt = np.zeros(num_steps)
+    CO2 = np.zeros(num_steps)
+    dCO2_dt = None
 
     # Set initial values
     biomass[0] = X0
@@ -119,13 +124,16 @@ def model(param):
         dX_dt = dXdt(mu, c_biomass, f_glucose, V)
         dS_dt[i] = dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s)
         dV_dt = F_in[i] - (0.4/num_steps) # not complete -- somehow add base and acid to it + include samples + evaporation
+        dCO2_dt [i] =  Yco2_x * mu * dXdt(mu, c_biomass, f_glucose, V) 
         biomass[i] = c_biomass + dX_dt * dt
         substrate[i] = c_glucose + dS_dt[i] * dt
         volume[i] = V + dV_dt
+        
 
-    return time, biomass, substrate, volume, dS_dt
 
-def plot_simulation(time, biomass, substrate, dS_dt, title):
+    return time, biomass, substrate, volume, dS_dt, dCO2_dt
+
+def plot_simulation( time, biomass, substrate, volume, dS_dt, dCO2_dt, title ):
     # import experimental data
     df_exp = pd.read_csv('data/data_combined.csv')
 
@@ -137,6 +145,9 @@ def plot_simulation(time, biomass, substrate, dS_dt, title):
     ax.plot(time, dS_dt, color='green', label='dS/dt [g/L]')
     ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='purple')
     ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
+    ax.scatter(time, dCO2_dt, color='red', label='dCO2_dt [g/L]')  # Plot dCO2_dt as scatter plot
+
+    
 
     ax.set_xlabel('time [h]')
     ax.set_ylabel('Biomass [g/L] & dS/dt [g/L]')
@@ -153,26 +164,5 @@ def plot_simulation(time, biomass, substrate, dS_dt, title):
     plt.title(title)
     fig.show()
     
-    
-# Call the model function
-params = {
-    'mu_max': 0.3,
-    'X_max': 10,
-    'Ks': 1,
-    'Ks_qs': 0.1,
-    'Ki': 0.05,
-    'Yxs': 0.5,
-    'qs_max': 0.6,
-    'm_s': 0.01,
-    'lag': 1,
-    'X0': 0.1,
-    'S0': 20,
-    'V0': 10,
-    'c_glu_feed': 100
-}
 
-time, biomass, substrate, volume, dS_dt = model(params)
-
-# Call the plot_simulation function
-plot_simulation(time, biomass, substrate, dS_dt, 'Fermentation Simulation')
     

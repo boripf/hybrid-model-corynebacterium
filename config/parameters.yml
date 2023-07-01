@@ -9,6 +9,7 @@ Yxs:  0.48 #[g_biomass/g_substrate] from 2015 Shen: 0.5264; calculated with mu_m
 c_glu_feed: 350 # [g/L]
 lag: 0.0057 
 X_max: 23.16 # [g/L]
+Yco2_x: 0.011412696 
 
 # Initial conditions
 X0: 0.5  # Initial biomass [g/L]
