@@ -4,6 +4,7 @@ Hybrid semi-parametric model that includes a mechanistic model and a data-driven
 ### Workflow with Git
 Everyone is working in their own branch (debbi & marc). From there changes can be merged with the main branch. Follow the step by step guide:
 - commit and push all changes to your own branch
+- open a new **Git Bash** terminal
 - switch from your branch to the main branch: **git checkout main** 
 - get the latest updates: **git pull**
 - merge the 2 branches: **git merge <branch_name>**
