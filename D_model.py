@@ -44,11 +44,11 @@ def model_sensitivity_analysis(parameters):
     V0 = param['V0']
     c_glu_feed = param['c_glu_feed']
 
-    mu_max = parameters[0]
-    X_max = parameters[1]
-    Yxs = parameters[2]
-    #m_s = parameters[3]
-    m_s = 0.18
+    Yxs = parameters[0]
+    qs_max = parameters[1]
+    Ks = parameters[2]
+    m_s = parameters[3]
+    lag = parameters[4]
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
@@ -68,23 +68,22 @@ def model_sensitivity_analysis(parameters):
         c_glucose = substrate[i-1]
         c_biomass = biomass[i-1]
         V = volume[i-1]
-        glu_met = S_met[i-1]
         f_glucose = F_glu[i]
-        
         
         # since the glucose concentration can't be negative, it is set to zero
         if c_glucose < 0:
             c_glucose = 0
 
-        # Define equations for growth rate and glucose uptake rate
-        mu = mu_max * (1 - (c_biomass/ X_max))
-        qs = mu / Yxs
+        # Update growth and glucose uptake rate
+        qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
+        mu = qs * Yxs
 
         S_met[i] = qs * c_biomass * dt #[gs/(gx h) * gx/L * h = gs/L]
         
         # Update biomass and substrate concentrations
         dV_dt = F_in[i] - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
         dX_dt = mu * c_biomass - (c_biomass / V) * dV_dt # [gx/(Lh)]
+
         dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - (qs + m_s) * c_biomass - (c_glucose / V) * dV_dt
         # [gs/(Lh)]
 

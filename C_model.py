@@ -228,7 +228,7 @@ def plot_save(time, biomass, substrate, volume, title, plot_name, set_num):
     plt.savefig(os.path.join(directory, plot_name))
     plt.close()
 
-def plot_show(time, biomass, substrate, volume, title, set_num):
+def plot_show(time, biomass, substrate, volume):
     # import experimental data
     df_exp = pd.read_csv('data/data_combined.csv')
 
@@ -252,4 +252,3 @@ def plot_show(time, biomass, substrate, volume, title, set_num):
 
     # Create a single legend using the combined handles and labels
     ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncols=4)
-    plt.title(title)
