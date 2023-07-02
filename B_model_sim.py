@@ -14,35 +14,16 @@ def mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max):
     #mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
     return mu
 
-
-def qs_eq(Yxs, f_glucose, V):
+def qs_eq(mu, Yxs):
     # -- MONOD / insert: qs_max, c_glucose, Ks_qs
     #qs = qs_max * c_glucose / (Ks_qs + c_glucose)
     # -- MONOD + NON COMPETITIVE INHIBITION / insert: qs_max, c_glucose, Ks_qs, Ki, glu_met
     #s = qs_max * c_glucose / (Ks_qs + c_glucose) * (Ki / (Ki + glu_met))
-    # -- YIELD / insert: Yxs, f_glucose, V
-    qs = 1/Yxs * f_glucose / V #NOT SURE IF CORRECT because g_S/g_X but not per h
+    # -- YIELD / insert: mu, Yxs
+    qs = mu/Yxs 
     # -- MONOD + METABOLIZED GLU / insert: qs_max, c_glucose, Ks_qs, glu_met, lag
     #qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(glu_met * lag)))
     return qs
-
-def dXdt(mu, c_biomass, f_glucose, V):
-    # -- BATCH + mu / insert: mu, c_biomass
-    #dXdt = mu * c_biomass
-    # -- FEDBATCH + mu / insert: mu, c_biomass, f_glucose, V
-    dXdt = mu * c_biomass - c_biomass * f_glucose / V 
-    # -- FEDBATCH + Yield / insert: qs, Yxs, c_biomass, f_glucose, V
-    # dXdt = qs * Yxs * c_biomass - c_biomass * f_glucose / V
-    return dXdt
-
-def dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s):
-    # -- BATCH / insert: qs, c_biomass
-    # dSdt = -qs * c_biomass
-    # -- FEDBATCH / insert: f_glucose, V, c_glu_feed, c_glucose, c_biomass, qs, c_biomass
-    # dSdt = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass
-    # -- FEDBATCH + MAINTENANCE / insert: f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s
-    dSdt = ((f_glucose / V) * (c_glu_feed - c_glucose)) - qs * c_biomass - m_s * c_biomass  
-    return dSdt
 
 def model(param):
     """
@@ -67,7 +48,7 @@ def model(param):
     # Extract experimental data
     df_exp = pd.read_csv('data/data_combined.csv')
     F_glu = df_exp['Glucose feed [L/min]']*60 # [L/h]
-    F_in = df_exp['Feed total [L/min]']
+    F_in = df_exp['Feed total [L/min]']*60
 
     # Extract parameters
     mu_max = param['mu_max']
@@ -112,16 +93,20 @@ def model(param):
 
         # Update growth and glucose uptake rate
         mu = mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max)
-        qs = qs_eq(Yxs, f_glucose, V)
-        S_met[i] = qs * c_biomass * V
+        qs = qs_eq(mu, Yxs)
+        S_met[i] = qs * c_biomass * dt
 
         # Update biomass and substrate concentrations
-        dX_dt = dXdt(mu, c_biomass, f_glucose, V)
-        dS_dt[i] = dSdt(f_glucose, V, c_glu_feed, c_glucose, qs, c_biomass, m_s)
-        dV_dt = F_in[i] - (0.4/num_steps) # not complete -- somehow add base and acid to it + include samples + evaporation
-        biomass[i] = c_biomass + dX_dt * dt
-        substrate[i] = c_glucose + dS_dt[i] * dt
-        volume[i] = V + dV_dt
+        dV_dt = F_in[i] - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
+        dX_dt = mu * c_biomass - (c_biomass / V) * dV_dt # [gx/(Lh)]
+
+        ## (qs + m_s)
+        dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - (qs + m_s) * c_biomass - (c_glucose / V) * dV_dt
+        # [gs/(Lh)]
+
+        biomass[i] = c_biomass + dX_dt * dt # [gx/L]
+        substrate[i] = c_glucose + dS_dt[i] * dt # [gs/L]
+        volume[i] = V + dV_dt * dt # [L]
 
     return time, biomass, substrate, volume, dS_dt
 
@@ -152,27 +137,3 @@ def plot_simulation(time, biomass, substrate, dS_dt, title):
 
     plt.title(title)
     fig.show()
-    
-    
-# Call the model function
-params = {
-    'mu_max': 0.3,
-    'X_max': 10,
-    'Ks': 1,
-    'Ks_qs': 0.1,
-    'Ki': 0.05,
-    'Yxs': 0.5,
-    'qs_max': 0.6,
-    'm_s': 0.01,
-    'lag': 1,
-    'X0': 0.1,
-    'S0': 20,
-    'V0': 10,
-    'c_glu_feed': 100
-}
-
-time, biomass, substrate, volume, dS_dt = model(params)
-
-# Call the plot_simulation function
-plot_simulation(time, biomass, substrate, dS_dt, 'Fermentation Simulation')
-    

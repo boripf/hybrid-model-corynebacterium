@@ -14,7 +14,6 @@ def mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max):
     #mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
     return mu
 
-
 def qs_eq(Yxs, f_glucose, V):
     # -- MONOD / insert: qs_max, c_glucose, Ks_qs
     #qs = qs_max * c_glucose / (Ks_qs + c_glucose)
@@ -84,8 +83,6 @@ def model(param):
     V0 = param['V0']
     c_glu_feed = param['c_glu_feed']
     Yco2_x = param['Yco2_x']
-    
-
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
@@ -109,8 +106,7 @@ def model(param):
         V = volume[i-1]
         glu_met = S_met[i-1]
         f_glucose = F_glu[i]
-        
-        
+           
         # since the glucose concentration can't be negative, it is set to zero
         if c_glucose < 0:
             c_glucose = 0
@@ -128,8 +124,6 @@ def model(param):
         biomass[i] = c_biomass + dX_dt * dt
         substrate[i] = c_glucose + dS_dt[i] * dt
         volume[i] = V + dV_dt
-        
-
 
     return time, biomass, substrate, volume, dS_dt, dCO2_dt
 
@@ -147,8 +141,6 @@ def plot_simulation( time, biomass, substrate, volume, dS_dt, dCO2_dt, title ):
     ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
     ax.scatter(time, dCO2_dt, color='red', label='dCO2_dt [g/L]')  # Plot dCO2_dt as scatter plot
 
-    
-
     ax.set_xlabel('time [h]')
     ax.set_ylabel('Biomass [g/L] & dS/dt [g/L]')
     ax_2nd.set_ylabel('Substrate [g/L]')
@@ -163,6 +155,3 @@ def plot_simulation( time, biomass, substrate, volume, dS_dt, dCO2_dt, title ):
 
     plt.title(title)
     fig.show()
-    
-
-    

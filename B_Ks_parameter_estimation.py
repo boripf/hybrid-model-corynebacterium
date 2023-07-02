@@ -3,8 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-
-
 # 1try)  to load the substrat and mu data directly 
 
 # Load the data from the A_preprocessing.ipynb file
@@ -21,7 +19,6 @@ from scipy.optimize import curve_fit
 # Read data from Excel file
 df = pd.read_excel('data/Yxs_table.xlsx')
 
-
 # Extract growth rate and substrate concentration data
 growth_rate = df['mu 2.2 [1/h]'].values
 substrate_concentration = df['Glucose [g/L]'].values
@@ -34,7 +31,6 @@ valid_values = ~(missing_values | inf_values)
 # Filter out invalid values
 substrate_concentration = substrate_concentration[valid_values]
 growth_rate = growth_rate[valid_values]
-
 
 # Define the Monod equation
 def monod_equation(substrate, μmax, Ks):
@@ -65,9 +61,7 @@ predicted_growth_rate = monod_equation(substrate_concentration, μmax_fit, Ks_fi
 mean_squared_error = np.mean((predicted_growth_rate - growth_rate) ** 2)
 r_squared = 1 - (mean_squared_error / np.var(growth_rate))
 
-print('Fitted Parameters:')
-print('μmax:', μmax_fit)
-print('Ks:', Ks_fit)
-print('R-squared:', r_squared)
-
-
+#print('Fitted Parameters:')
+#print('μmax:', μmax_fit)
+#print('Ks:', Ks_fit)
+#print('R-squared:', r_squared)
