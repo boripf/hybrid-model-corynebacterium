@@ -15,3 +15,5 @@ Yco2_x: 0.011412696
 X0: 0.5  # Initial biomass [g/L]
 S0: 11.0  # Initial substrate concentration [g/L] -- GUESS because after 0.2 it is 5.22 g/L
 V0: 1.0 # Initial volume in the reactor [L]
+
+set_parameter: [0.4597, 1.1255, 0.6814, 0.0094, 0.1913] # Yxs, qs_max, Ks, m_s, lag
