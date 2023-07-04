@@ -1,31 +1,40 @@
 import numpy as np
 import pandas as pd
+import yaml
 import matplotlib.pyplot as plt
 
+# import experimental data
+df_exp = pd.read_csv('data/data_combined.csv')
+
+# Load parameters from YAML file
+with open('config/parameters.yml', 'r') as file:
+    param = yaml.safe_load(file)
+
 # Calculate growth rate and substrate uptake rate
-def mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max):
+def mu_eq(qs, Yxs):
     # -- MONOD / insert: mu_max, c_glucose, Ks
     #mu = mu_max * c_glucose / (c_glucose + Ks)
     # -- LOGISTIC / insert: mu_max, c_biomass, X_max
     #mu = mu_max * (1 - (c_biomass/ X_max)) 
     # -- MONOD + LOGISTIC / insert: mu_max, c_glucose, Ks, c_biomass, X_max
-    mu = mu_max * (c_glucose / (c_glucose + Ks)) * (1 - (c_biomass/ X_max))
+    # mu = mu_max * (c_glucose / (c_glucose + Ks)) * (1 - (c_biomass/ X_max))
     # -- MONOD + LOGISTIC + INHIBITION / insert: mu_max, c_glucose, Ks, Ki, c_biomass, X_max
     #mu = mu_max * (c_glucose / (c_glucose + Ks + (c_glucose**2/ Ki))) * (1 - (c_biomass/ X_max))
+    mu = qs * Yxs
     return mu
 
-def qs_eq(mu, Yxs):
+def qs_eq(qs_max, c_glucose, Ks_qs, c_biomass, lag):
     # -- MONOD / insert: qs_max, c_glucose, Ks_qs
     #qs = qs_max * c_glucose / (Ks_qs + c_glucose)
     # -- MONOD + NON COMPETITIVE INHIBITION / insert: qs_max, c_glucose, Ks_qs, Ki, glu_met
     #s = qs_max * c_glucose / (Ks_qs + c_glucose) * (Ki / (Ki + glu_met))
     # -- YIELD / insert: mu, Yxs
-    qs = mu/Yxs 
-    # -- MONOD + METABOLIZED GLU / insert: qs_max, c_glucose, Ks_qs, glu_met, lag
-    #qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(glu_met * lag)))
+    # qs = mu/Yxs 
+    # -- MONOD + METABOLIZED GLU / insert: qs_max, c_glucose, Ks_qs, c_biomass, lag
+    qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(c_biomass * lag)))
     return qs
 
-def model(param):
+def model(delta_t):
     """
     Simulates the fermentation process based on the provided parameters.
     Args:
@@ -38,12 +47,12 @@ def model(param):
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
     """
+
     # Simulation settings
     t0 = 0
     t_end = 46.1
-    dt = 1/60
+    dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
-    print(num_steps)
 
     # Extract experimental data
     df_exp = pd.read_csv('data/data_combined.csv')
@@ -70,8 +79,6 @@ def model(param):
     biomass = np.zeros(num_steps)
     substrate = np.zeros(num_steps)
     volume = np.zeros(num_steps)
-    S_met = np.zeros(num_steps)
-    dS_dt = np.zeros(num_steps)
 
     # Set initial values
     biomass[0] = X0
@@ -82,45 +89,41 @@ def model(param):
     for i in range(1, num_steps):
         c_glucose = substrate[i-1]
         c_biomass = biomass[i-1]
-        V = volume[i-1]
-        glu_met = S_met[i-1]
-        f_glucose = F_glu[i]
-        
+        vol = volume[i-1]
+
+        # time steps need to be adapted for experimental data input
+        t = i * delta_t
+        f_glucose = F_glu[t]
+        f_total = F_in[t]
         
         # since the glucose concentration can't be negative, it is set to zero
         if c_glucose < 0:
             c_glucose = 0
 
         # Update growth and glucose uptake rate
-        mu = mu_eq(mu_max, c_glucose, Ks, c_biomass, X_max)
-        qs = qs_eq(mu, Yxs)
-        S_met[i] = qs * c_biomass * dt
-
+        qs = qs_eq(qs_max, c_glucose, Ks_qs, c_biomass, lag)
+        mu = mu_eq(qs, Yxs)
+        
         # Update biomass and substrate concentrations
-        dV_dt = F_in[i] - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
-        dX_dt = mu * c_biomass - (c_biomass / V) * dV_dt # [gx/(Lh)]
+        dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
+        dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
 
-        ## (qs + m_s)
-        dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - (qs + m_s) * c_biomass - (c_glucose / V) * dV_dt
+        dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - ((c_glucose / vol) * dV_dt)
         # [gs/(Lh)]
 
         biomass[i] = c_biomass + dX_dt * dt # [gx/L]
-        substrate[i] = c_glucose + dS_dt[i] * dt # [gs/L]
-        volume[i] = V + dV_dt * dt # [L]
+        substrate[i] = c_glucose + dS_dt * dt # [gs/L]
+        volume[i] = vol + dV_dt * dt # [L]
+        
+    return time, biomass, substrate
 
-    return time, biomass, substrate, volume, dS_dt
-
-def plot_simulation(time, biomass, substrate, dS_dt, title):
-    # import experimental data
-    df_exp = pd.read_csv('data/data_combined.csv')
-
+def plot_simulation(time, biomass, substrate, title):
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
 
     ax.plot(time, biomass, label='Biomass sim', color='blue')
     ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
-    ax.plot(time, dS_dt, color='green', label='dS/dt [g/L]')
-    ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='purple')
+    ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
     ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
 
     ax.set_xlabel('time [h]')
