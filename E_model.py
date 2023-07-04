@@ -5,12 +5,15 @@ import yaml
 
 # Load experimental data
 df_exp = pd.read_csv('data/data_combined.csv')
+# we can not use that because the total feed contains acid and base
+F_glu = df_exp['Glucose feed [L/min]']*60 #[L/h]
+F_in = df_exp['Feed total [L/min]']*60 #[L/h]
 
 # Load parameters from YAML file
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
 
-def model(parameters):
+def model(parameters, delta_t):
     """
     Simulates the fermentation process based on the provided parameters.
     Args:
@@ -27,14 +30,8 @@ def model(parameters):
     # Simulation settings
     t0 = 0
     t_end = 46.1
-    dt = 1/60
+    dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
-
-    # Extract experimental data
-    df_exp = pd.read_csv('data/data_combined.csv')
-    # we can not use that because the total feed contains acid and base
-    F_glu = df_exp['Glucose feed [L/min]']*60 #[L/h]
-    F_in = df_exp['Feed total [L/min]']*60 #[L/h]
 
     # Extract parameters
     X0 = param['X0']
@@ -53,20 +50,24 @@ def model(parameters):
     biomass = np.zeros(num_steps)
     substrate = np.zeros(num_steps)
     volume = np.zeros(num_steps)
-    S_met = np.zeros(num_steps)
-    dS_dt = np.zeros(num_steps)
-
+    uptake_rate = np.zeros(num_steps)
+    
     # Set initial values
     biomass[0] = X0
     substrate[0] = S0
     volume[0] = V0
+    uptake_rate[0] = np.nan
 
     # Simulation loop
     for i in range(1, num_steps):
         c_glucose = substrate[i-1]
         c_biomass = biomass[i-1]
-        V = volume[i-1]
-        f_glucose = F_glu[i]
+        vol = volume[i-1]
+
+        # time steps need to be adapted for experimental data input
+        t = i * delta_t
+        f_glucose = F_glu[t]
+        f_total = F_in[t]
         
         # since the glucose concentration can't be negative, it is set to zero
         if c_glucose < 0:
@@ -76,21 +77,25 @@ def model(parameters):
         qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
         mu = qs * Yxs
 
-        S_met[i] = qs * c_biomass * dt #[gs/(gx h) * gx/L * h = gs/L]
-        
         # Update biomass and substrate concentrations
-        dV_dt = F_in[i] - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
-        dX_dt = mu * c_biomass - (c_biomass / V) * dV_dt # [gx/(Lh)]
+        dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
+        dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
 
-        dS_dt[i] = ((f_glucose / V) * (c_glu_feed - c_glucose)) - (qs + m_s) * c_biomass - (c_glucose / V) * dV_dt
+        dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - ((c_glucose / vol) * dV_dt)
         # [gs/(Lh)]
 
         biomass[i] = c_biomass + dX_dt * dt # [gx/L]
-        substrate[i] = c_glucose + dS_dt[i] * dt # [gs/L]
-        volume[i] = V + dV_dt * dt # [L]
+        substrate[i] = c_glucose + dS_dt * dt # [gs/L]
+        volume[i] = vol + dV_dt * dt # [L]
+        uptake_rate[i] = qs
 
         df = pd.DataFrame()
-        df[['time', 'biomass', 'glucose']] = pd.DataFrame({'time': time, 'biomass': biomass, 'glucose': substrate})
+        df[['time', 'biomass', 'glucose', 'qs']] = pd.DataFrame({
+            'time': time, 
+            'biomass': biomass, 
+            'glucose': substrate,
+            'qs': uptake_rate
+            })
 
     return df
 
