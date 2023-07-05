@@ -126,6 +126,8 @@ def model(delta_t):
 
 import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+
 def plot_simulation(time, biomass, substrate, co2, title):
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
@@ -136,23 +138,31 @@ def plot_simulation(time, biomass, substrate, co2, title):
     
     ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
     ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
+
     
     ax_3rd.plot(time, co2, label='CO2 sim', color='green')  # New line for CO2
+
+    ax_4th = ax.twinx()  # Add a fourth y-axis for experimental CO2
+    ax_4th.plot(df_exp['time [h]'], df_exp['Offgas CO2 [g/L]'], label='CO2 exp [g/min]', color='purple')  
 
     ax.set_xlabel('time [h]')
     ax.set_ylabel('Biomass [g/L] & dS/dt [g/L]')
     ax_2nd.set_ylabel('Substrate [g/L]')
-    ax_3rd.set_ylabel('CO2 [g/L]')  # Updated ylabel
+    ax_3rd.set_ylabel('CO2 simulated [g/L]') 
+    ax_4th.set_ylabel('Experimental CO2 [g/L]') # Updated ylabel
     
-    
-      # Adjust the position of the third y-axis
-        # Adjust the position of the third y-axis
+
+  # Adjust the position of the third y-axis
     ax_3rd.spines['right'].set_position(('outward', 60))
     ax_3rd.spines['right'].set_color('green')
     ax_3rd.yaxis.label.set_color('green')
     ax_3rd.tick_params(axis='y', colors='green')
-
-
+    
+    ax_4th.spines['right'].set_position(('outward', 120))
+    ax_4th.spines['right'].set_color('purple')
+    ax_4th.yaxis.label.set_color('purple')
+    ax_4th.tick_params(axis='y', colors='purple')
+    
     handles, labels = ax.get_legend_handles_labels()
     handles_2nd, labels_2nd = ax_2nd.get_legend_handles_labels()
     handles_3rd, labels_3rd = ax_3rd.get_legend_handles_labels()
@@ -164,5 +174,4 @@ def plot_simulation(time, biomass, substrate, co2, title):
 
     plt.title(title)
     plt.show()
-
     
