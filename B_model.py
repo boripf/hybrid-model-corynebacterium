@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 # import experimental data
 df_exp = pd.read_csv('data/data_combined.csv')
 
+F_glu = df_exp['Glucose feed [L/min]']*60 # [L/h]
+F_in = df_exp['Feed total [L/min]']*60
+
 # Load parameters from YAML file
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
@@ -53,11 +56,6 @@ def model(delta_t):
     t_end = 46.1
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
-
-    # Extract experimental data
-    df_exp = pd.read_csv('data/data_combined.csv')
-    F_glu = df_exp['Glucose feed [L/min]']*60 # [L/h]
-    F_in = df_exp['Feed total [L/min]']*60
 
     # Extract parameters
     mu_max = param['mu_max']
