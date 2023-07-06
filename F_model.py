@@ -9,9 +9,10 @@ def show_plot(df):
     ax.plot(df['time'], df['qs_predicted'], label='qs predicted', color='violet')
     ax_2nd.plot(df['time'], df['biomass'], label='Biomass sim', color='blue')
     ax_3rd.plot(df['time'], df['glucose'], label='Substrate sim', color='orange')
+    ax_3rd.spines['right'].set_position(('outward', 60))
 
     ax.set_xlabel('time [h]')
-    ax.set_ylabel('Biomass [g/L]')
+    ax.set_ylabel('qs [g/(Lh)]')
     ax_2nd.set_ylabel('Biomass [g/L]')
     ax_3rd.set_ylabel('Substrate [g/L]')
 

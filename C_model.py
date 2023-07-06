@@ -72,7 +72,7 @@ def model(parameters, qs_eq, num_qs):
 
     # Simulation settings
     t0 = 0
-    t_end = 46.1
+    t_end = 45.8
     delta_t = 1
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
@@ -216,7 +216,7 @@ def model_estimation(parameters):
 
     # Simulation settings
     t0 = 0
-    t_end = 46.1
+    t_end = 45.8
     delta_t = 1
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
