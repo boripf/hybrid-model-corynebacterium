@@ -1,13 +1,13 @@
 # Parameters
 mu_max: 0.2 # [1/h]  0.3514; 0.2;  if we consider no exponential growth, smallest time interval: 0.923 ; expoential growth + smallest time intevall: 0.84 ; expoential growth + Start to sampleX: 0,375; 
-m_s: 0.01 # from 2015 Shen
+m_s: 0.0094 # from 2015 Shen
 Ks: 7.0  # [g/L]
-Ks_qs: 0.7 # 0.035  # [g/L] 
+Ks_qs: 0.6814 # 0.035  # [g/L] 
 Ki: 7.150  # [g/L]
-qs_max: 1.1 # 0.57  # [g_substrate/g_biomass*h] ; if we consider no exponential growth, smallest time interval: 1,13 ; calculated with mu_max/yield coefficient(for the batch phase):  0,68 , 
-Yxs:  0.48 #[g_biomass/g_substrate] from 2015 Shen: 0.5264; calculated with mu_max/yield coefficient(for the batch phase): 1,24 ; Assumption that 340 g/l have been consumed: 0.067 = 0.4 cmol BM/cmol GLC ; taking whole fed batch into accont: Yxs_consumed: 0,32
+qs_max: 1.1255 # 1.1 # 0.57  # [g_substrate/g_biomass*h] ; if we consider no exponential growth, smallest time interval: 1,13 ; calculated with mu_max/yield coefficient(for the batch phase):  0,68 , 
+Yxs: 0.4597 #0.48 [g_biomass/g_substrate] from 2015 Shen: 0.5264; calculated with mu_max/yield coefficient(for the batch phase): 1,24 ; Assumption that 340 g/l have been consumed: 0.067 = 0.4 cmol BM/cmol GLC ; taking whole fed batch into accont: Yxs_consumed: 0,32
 c_glu_feed: 350 # [g/L]
-lag: 0.2 # 0.0057 
+lag: 0.1913 # 0.0057 
 X_max: 23.16 # [g/L]
 Yco2_x: 0.0012 #0.00019021
 
