@@ -59,12 +59,13 @@ def model(delta_t):
     num_steps = int((t_end - t0) / dt) + 1  # Number of time steps
 
     # Extract parameters
+    Yxs = param['Yxs']
+    Yco2s = param['Yco2_x']
     mu_max = param['mu_max']
     X_max = param['X_max']
     Ks = param['Ks']
     Ks_qs = param['Ks_qs']
     Ki = param['Ki']
-    Yxs = param['Yxs']
     qs_max = param['qs_max']
     m_s = param['m_s']
     lag = param['lag']
@@ -73,7 +74,6 @@ def model(delta_t):
     V0 = param['V0']
     co20 = param['co20']
     c_glu_feed = param['c_glu_feed']
-    Yco2_x = param['Yco2_x']
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
@@ -112,7 +112,7 @@ def model(delta_t):
         dV_dt = f_total - (0.4 * 60 / num_steps)  # [L/h] not complete -- include samples + evaporation
         dX_dt = mu * c_biomass - (c_biomass * (dV_dt/ vol))   # [gx/(Lh)]
         dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - (c_glucose * (dV_dt / vol))  # [gs/(Lh)]
-        dCO2_dt = Yco2_x * mu * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
+        dCO2_dt = Yco2s* qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
         
         biomass[i] = c_biomass + dX_dt * dt  # [gx/L]
         substrate[i] = c_glucose + dS_dt * dt  # [gs/L]

@@ -1,6 +1,8 @@
 # hybrid-model-corynebacterium
 Hybrid semi-parametric model that includes a mechanistic model and a data-driven model. Application for the fermentation of Corynebacterium glutamicum.
 
+![Project timeline](images/TimeLine.png)
+
 ### Workflow with Git
 Everyone is working in their own branch (debbi & marc). From there changes can be merged with the main branch. Follow the step by step guide:
 - commit and push all changes to your own branch
@@ -19,7 +21,7 @@ Everyone is working in their own branch (debbi & marc). From there changes can b
     - pull the copy of the main branch: **git pull origin main**
     
 
-### Structure
+### File Structure
 Each file starts with a letter which should represent the steps of development within the developing of the model. Each step contains a .py file where the model is defined and other relevant functions. The functions are then imported to the jupyter notebook, where the output is further processed.
 
 - config

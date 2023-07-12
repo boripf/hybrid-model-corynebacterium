@@ -133,7 +133,6 @@ def model(parameters, qs_eq, num_qs):
         # Update biomass and substrate concentrations
         dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
         dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
-
         dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - ((c_glucose / vol) * dV_dt)
         # [gs/(Lh)]
 
@@ -144,9 +143,6 @@ def model(parameters, qs_eq, num_qs):
     return time, biomass, substrate, volume
 
 def plot_save(time, biomass, substrate, volume, title, plot_name, set_num):
-    # import experimental data
-    df_exp = pd.read_csv('data/data_combined.csv')
-
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
 
@@ -170,7 +166,7 @@ def plot_save(time, biomass, substrate, volume, title, plot_name, set_num):
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/estimation/0207_6'
+    directory = f'data/estimation/1007_1'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):
@@ -224,30 +220,35 @@ def model_estimation(parameters):
     # Extract parameters
     X0 = param['X0']
     S0 = param['S0']
+    co20 = param['co20']
     V0 = param['V0']
     c_glu_feed = param['c_glu_feed']
 
     Yxs = parameters[0]
-    qs_max = parameters[1]
-    Ks = parameters[2]
-    m_s = parameters[3]
-    lag = parameters[4]
+    Yco2s = parameters[1]
+    qs_max = parameters[2]
+    Ks = parameters[3]
+    m_s = parameters[4]
+    lag = parameters[5]
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
     biomass = np.zeros(num_steps)
     substrate = np.zeros(num_steps)
+    co2 = np.zeros(num_steps)
     volume = np.zeros(num_steps)
 
     # Set initial values
     biomass[0] = X0
     substrate[0] = S0
+    co2[0] = co20
     volume[0] = V0
 
     # Simulation loop
     for i in range(1, num_steps):
         c_glucose = substrate[i-1]
         c_biomass = biomass[i-1]
+        c_co2 = co2[i-1]
         vol = volume[i-1]
 
         # time steps need to be adapted for experimental data input
@@ -266,22 +267,24 @@ def model_estimation(parameters):
         # Update biomass and substrate concentrations
         dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
         dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
-
         dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - ((c_glucose / vol) * dV_dt)
         # [gs/(Lh)]
+        dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
 
         biomass[i] = c_biomass + dX_dt * dt # [gx/L]
         substrate[i] = c_glucose + dS_dt * dt # [gs/L]
+        co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
         volume[i] = vol + dV_dt * dt # [L]
 
-    return time, biomass, substrate, volume
+    return time, biomass, substrate, 
 
-def plot_show(time, biomass, substrate):
+def plot_show(time, biomass, substrate, co2):
     # import experimental data
     df_exp = pd.read_csv('data/data_combined.csv')
 
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
+    ax_3rd = ax.twinx()
 
     ax.plot(time, biomass, label='Biomass sim', color='blue')
     ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
