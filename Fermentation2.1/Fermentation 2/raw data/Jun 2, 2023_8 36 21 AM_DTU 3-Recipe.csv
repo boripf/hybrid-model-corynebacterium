@@ -1,0 +1,11 @@
+recipeName;evaluationTime;sequence;sequenceName;action;parameter ;parameterStatus;setpointStart;startOnValue;setpointStop;hours;minutes;seconds;conditionParameter;conditionState;conditionValue
+Heating test;1000;1;Stirrer on;Change parameter status;Stirrer;Enabled;;;;;;;;;
+Heating test;1000;2;heating;Run for set time;Temperature;Enabled;20,00;No;85,00;0,00;30,00;0,00;;;
+Heating test;1000;3;85 gegrees;Run for set time;Temperature;Unchanged;85,00;No;85,00;0,00;30,00;0,00;;;
+Heating test;1000;4;cooling;Run for set time;Temperature;Unchanged;85,00;No;20,00;0,00;30,00;0,00;;;
+Heating test;1000;5;20 degrees;Run for set time;Temperature;Unchanged;20,00;No;20,00;0,00;30,00;0,00;;;
+Heating 45;1000;1;Heating;Run for set time;Temperature;Unchanged;20,00;No;45,00;0,00;30,00;0,00;;;
+Heating 45;1000;2;45 Degrees;Run for set time;Temperature;Unchanged;45,00;No;45,00;0,00;30,00;0,00;;;
+Heating 45;1000;3;Cooling;Run for set time;Temperature;Unchanged;45,00;No;20,00;0,00;30,00;0,00;;;
+Heating 45;1000;4;20 Degrees;Run for set time;Temperature;Unchanged;20,00;No;20,00;0,00;30,00;0,00;;;
+feed glc;5000;1;start value ;Run for set time;Feed 1;Unchanged;1,00;No;17,00;30,00;0,00;0,00;;;
