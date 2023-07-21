@@ -1,0 +1,3 @@
+number;controller;parameter;deadbandValue;deadbandEvaluationTime;minvalue;setpoint;maxvalue;stepsize;evaluationtime;inverted
+1;Controlled Parameter;pO?;0,00;1000,00;;;;;;
+1;Primary Controller;Stirrer;;;300,00;0,00;1200,00;5,00;20;No
