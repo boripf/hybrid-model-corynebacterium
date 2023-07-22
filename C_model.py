@@ -12,6 +12,7 @@ df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
 ## load biomass and substrate from experiment
 biomass_exp = df_exp['Biomass [g/L]']
 substrate_exp = df_exp['Glucose [g/L]']
+co2_exp = df_exp['Offgas CO2 [g/L]- smoothed']
 
 ## we have 2 inputs for the model
 ## feed of glucose and total feed that includes acid&base
@@ -36,6 +37,8 @@ def get_LHS_samples(num_samples, num_parameters, parameter_bounds):
         rescaled_samples.append(rescaling)
     samples = np.array(rescaled_samples).T
     return samples
+
+####-------------------------------------------------------------------------------------------------
 
 # Root mean squared error is the objective function
 def objective_function(parameters, qs_eq, num_qs):
@@ -180,7 +183,7 @@ def plot_save(time, biomass, substrate, volume, title, plot_name, set_num):
 
 def objective_function_estimation(parameters):
     # Solve the model using the optimal parameters
-    time_pred, biomass_pred, substrate_pred, volume_pred = model_estimation(parameters)  # Solve the model using the current parameters
+    time_pred, biomass_pred, substrate_pred, co2_pred = model_estimation(parameters)  # Solve the model using the current parameters
     biomass = pd.concat([biomass_exp, pd.Series(biomass_pred)], axis=1, keys=['biomass_exp', 'biomass_pred']).dropna()
     biomass_exp_ = biomass['biomass_exp'].values
     biomass_pred_ = biomass['biomass_pred'].values
@@ -190,11 +193,16 @@ def objective_function_estimation(parameters):
     substrate_exp_ = glucose['substrate_exp'].values
     substrate_pred_ = glucose['substrate_pred'].values
     mse_s = mean_squared_error(substrate_exp_, substrate_pred_)  # Calculate mean squared error for substrate
+
+    co2 = pd.concat([co2_exp, pd.Series(co2_pred)], axis=1, keys=['co2_exp', 'co2_pred']).dropna()
+    co2_exp_ = co2['co2_exp'].values
+    co2_pred_ = co2['co2_pred'].values
+    mse_co2 = mean_squared_error(co2_exp_, co2_pred_)  # Calculate mean squared error for substrate
     
     # Calculate the combined rmse
-    mse = (mse_x + mse_s)/2
+    mse = (mse_x + mse_s + mse_co2) / 3
     rmse = np.sqrt(mse)  # Calculate root mean squared error
-    return rmse, time_pred, biomass_pred, substrate_pred, volume_pred
+    return rmse, time_pred, biomass_pred, substrate_pred, co2_pred
 
 def model_estimation(parameters):
     """
@@ -276,7 +284,49 @@ def model_estimation(parameters):
         co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
         volume[i] = vol + dV_dt * dt # [L]
 
-    return time, biomass, substrate, 
+    return time, biomass, substrate, co2
+
+def plot_save_estimation(time, biomass, substrate, co2, title, plot_name, set_num):
+    fig, ax = plt.subplots()
+    ax_2nd = ax.twinx()
+    ax_3rd = ax.twinx()
+
+    ax.plot(time, biomass, label='Biomass sim', color='blue')
+    ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
+    ax_3rd.plot(df_exp['time [h]'], df_exp['Offgas CO2 [g/L]- smoothed'], label='CO2 exp', color='darkseagreen')
+    
+    ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
+    ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
+    ax_3rd.plot(time, co2, label='CO2 sim', color='seagreen')
+    ax.locator_params(axis='x', nbins=20)
+
+    ax.set_xlabel('time [h]')
+    ax.set_ylabel('Biomass [g/L]')
+    ax_2nd.set_ylabel('Substrate [g/L]')
+    ax_3rd.set_ylabel('CO2 [g/L]', color='seagreen')
+    
+    ax_3rd.spines['right'].set_position(('outward', 60))
+
+    handles, labels = ax.get_legend_handles_labels()
+    handles_2nd, labels_2nd = ax_2nd.get_legend_handles_labels()
+    handles_3rd, labels_3rd = ax_3rd.get_legend_handles_labels()
+    all_handles = handles + handles_2nd + handles_3rd
+    all_labels = labels + labels_2nd + labels_3rd
+
+    # Create a single legend using the combined handles and labels
+    ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 0.5), ncols=4)
+    plt.title(title)
+    
+    # Save images in the corresponding folder
+    directory = f'data/batch_no2/estimation/2207_1'
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Save the plot in the created directory
+    plt.savefig(os.path.join(directory, plot_name))
+    plt.close()
 
 def plot_show(time, biomass, substrate, co2):
     # import experimental data
