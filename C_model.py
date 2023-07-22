@@ -7,7 +7,7 @@ from pyDOE import lhs
 import os
 
 # Extract experimental data
-df_exp = pd.read_csv('data/data_combined.csv')
+df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
 
 ## load biomass and substrate from experiment
 biomass_exp = df_exp['Biomass [g/L]']

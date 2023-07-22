@@ -4,7 +4,7 @@ import yaml
 import matplotlib.pyplot as plt
 
 # import experimental data
-df_exp = pd.read_csv('data/data_combined.csv')
+df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
 
 F_glu = df_exp['Glucose feed [L/min]']*60 # [L/h]
 F_in = df_exp['Feed total [L/min]']*60
@@ -112,7 +112,7 @@ def model(delta_t):
         dV_dt = f_total - (0.4 * 60 / num_steps)  # [L/h] not complete -- include samples + evaporation
         dX_dt = mu * c_biomass - (c_biomass * (dV_dt/ vol))   # [gx/(Lh)]
         dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - (c_glucose * (dV_dt / vol))  # [gs/(Lh)]
-        dCO2_dt = Yco2s* qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
+        dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
         
         biomass[i] = c_biomass + dX_dt * dt  # [gx/L]
         substrate[i] = c_glucose + dS_dt * dt  # [gs/L]
