@@ -330,7 +330,7 @@ def plot_save_estimation(time, biomass, substrate, co2, title, plot_name, set_nu
 
 def plot_show(time, biomass, substrate, co2):
     # import experimental data
-    df_exp = pd.read_csv('data/data_combined.csv')
+    df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
 
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
@@ -340,15 +340,22 @@ def plot_show(time, biomass, substrate, co2):
     ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
     ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
     ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
+    ax_3rd.plot(df_exp['time [h]'], df_exp['Offgas CO2 [g/L]- smoothed'], label='CO2 exp', color='darkseagreen')
+    ax_3rd.plot(time, co2, label='CO2 sim', color='seagreen')
+    ax.locator_params(axis='x', nbins=20)
 
     ax.set_xlabel('time [h]')
     ax.set_ylabel('Biomass [g/L]')
     ax_2nd.set_ylabel('Substrate [g/L]')
+    ax_3rd.set_ylabel('CO2 [g/L]', color='seagreen')
+    
+    ax_3rd.spines['right'].set_position(('outward', 60))
 
     handles, labels = ax.get_legend_handles_labels()
     handles_2nd, labels_2nd = ax_2nd.get_legend_handles_labels()
-    all_handles = handles + handles_2nd
-    all_labels = labels + labels_2nd
+    handles_3rd, labels_3rd = ax_3rd.get_legend_handles_labels()
+    all_handles = handles + handles_2nd + handles_3rd
+    all_labels = labels + labels_2nd + labels_3rd
 
     # Create a single legend using the combined handles and labels
     ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncols=4)
