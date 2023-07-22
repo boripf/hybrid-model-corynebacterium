@@ -314,11 +314,11 @@ def plot_save_estimation(time, biomass, substrate, co2, title, plot_name, set_nu
     all_labels = labels + labels_2nd + labels_3rd
 
     # Create a single legend using the combined handles and labels
-    ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 0.5), ncols=4)
+    ax.legend(all_handles, all_labels, loc='lower center', bbox_to_anchor=(0.5, -0.25), ncols=4)
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/batch_no2/estimation/2207_1'
+    directory = f'data/batch_no2/estimation/2207_2'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):
