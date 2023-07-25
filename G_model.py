@@ -3,7 +3,7 @@ import numpy as np
 import yaml
 
 # Load experimental data
-df_exp = pd.read_csv('data/data_combined.csv')
+df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
 # we can not use that because the total feed contains acid and base
 F_glu = df_exp['Glucose feed [L/min]']*60 #[L/h]
 F_in = df_exp['Feed total [L/min]']*60 #[L/h]
@@ -12,7 +12,7 @@ F_in = df_exp['Feed total [L/min]']*60 #[L/h]
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
 
-def model_single_timestep(i, qs, c_biomass, c_glucose, vol):
+def model_single_timestep_qs(i, qs, c_biomass, c_glucose, vol):
     """
     Simulates the fermentation process based on the provided parameters.
     Args:
@@ -63,3 +63,50 @@ def model_single_timestep(i, qs, c_biomass, c_glucose, vol):
     volume = vol + dV_dt * dt # [L]
 
     return biomass, substrate, volume
+
+def model_single_timestep_S(i, c_glucose, c_biomass, c_co2, vol):
+    """
+    Simulates the fermentation process based on the provided parameters.
+    Args:
+        params (dict): Dictionary containing the model parameters.
+        t0 (float): Initial time.
+        t_end (float): End time.
+        dt (float): Time step size.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+    """
+
+    # Simulation settings
+    t0 = 0
+    t_end = 45.8
+    delta_t = 2
+    dt = delta_t/60
+    num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
+
+    Yxs = param['set_6parameter'][0]
+    Yco2s = param['set_6parameter'][1]
+    qs_max = param['set_6parameter'][2]
+    Ks = param['set_6parameter'][3]
+    lag = param['set_6parameter'][5]
+
+    # time steps need to be adapted for experimental data input
+    t = i * delta_t
+    f_total = F_in[t]
+    
+    # Update growth and glucose uptake rate
+    qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
+    mu = qs * Yxs
+
+    # Update biomass and substrate concentrations
+    dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
+    dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
+    dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
+
+    biomass = c_biomass + dX_dt * dt # [gx/L]
+    substrate = c_glucose
+    co2 = c_co2 + dCO2_dt * dt  # [g/L]
+    volume = vol + dV_dt * dt # [L]
+
+    return biomass, substrate, co2, volume
