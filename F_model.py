@@ -31,11 +31,11 @@ def show_plot_S(df):
     ax_2nd = ax.twinx()
     ax_3rd = ax.twinx()
 
-    ax.plot(df['time'], df['S'], label='S calculated', color='crimson')
-    ax.plot(df['time'], df['S_predicted'], label='S predicted', color='violet')
-    ax_2nd.plot(df['time'], df['biomass'], label='Biomass sim', color='blue')
-    ax_3rd.plot(df['time'], df['co2'], label='co2 sim', color='orange')
+    ax_2nd.plot(df['time'], df['biomass'], label='Biomass exp', color='blue')
+    ax_3rd.plot(df['time'], df['co2'], label='co2 exp', color='seagreen')
     ax_3rd.spines['right'].set_position(('outward', 60))
+    ax.plot(df['time'], df['S'], label='S exp', color='crimson')
+    ax.plot(df['time'], df['S_predicted'], label='S ML calculated ', color='violet')
 
     ax.set_xlabel('time [h]')
     ax.set_ylabel('qs [g/(Lh)]')
