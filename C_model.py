@@ -508,7 +508,7 @@ def plot_save_estimation_no2(time, biomass, substrate, co2, title, plot_name, se
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/batch_no2/estimation/0208_2'
+    directory = f'data/batch_no2/estimation/0308_4'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):

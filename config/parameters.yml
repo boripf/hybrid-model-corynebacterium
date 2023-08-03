@@ -14,11 +14,11 @@ Yco2_x: 0.0012 # ausgerechnet: 0.00019021
 # Initial conditions‚
 X0: 0.5  # Initial biomass [g/L]
 X0_2: 0.1 # Initial biomass in batch no.2
-S0: 11.0  # Initial substrate concentration [g/L] -- GUESS because after 0.2 it is 5.22 g/L
+S0: 10.0  # Initial substrate concentration [g/L] -- GUESS because after 0.2 it is 5.22 g/L
 V0: 1.0 # Initial volume in the reactor [L]
 V0_2: 4.0 # Initial volume in the reactor [L] for batch no.2
 co20: 0.0008  # Initial CO2 concentration
 
 set_parameter: [0.4597, 1.1255, 0.6814, 0.0094, 0.1913] # Yxs, qs_max, Ks, m_s, lag
 set_6parameter: [0.4597, 0.001177, 1.1255, 0.6814, 0.0094, 0.1913] # Yxs, Yco2s, qs_max, Ks, m_s, lag
-set_6parameter_no2: [0.4334, 0.00124, 1.6218, 0.6423, 0.0089, 0.1667] # Yxs, Yco2s, qs_max, Ks, m_s, lag
+set_6parameter_no2: [0.441, 0.003, 1.603, 0.651, 0.0451, 0.175] # Yxs, Yco2s, qs_max, Ks, m_s, lag
