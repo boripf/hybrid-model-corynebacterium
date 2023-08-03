@@ -508,7 +508,7 @@ def plot_save_estimation_no2(time, biomass, substrate, co2, title, plot_name, se
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/batch_no2/estimation/0208_1'
+    directory = f'data/batch_no2/estimation/0208_2'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):
@@ -517,3 +517,33 @@ def plot_save_estimation_no2(time, biomass, substrate, co2, title, plot_name, se
     # Save the plot in the created directory
     plt.savefig(os.path.join(directory, plot_name))
     plt.close()
+
+def plot_show(time, biomass, substrate, co2):
+    fig, ax = plt.subplots()
+    ax_2nd = ax.twinx()
+    ax_3rd = ax.twinx()
+
+    ax.plot(time, biomass, label='Biomass sim', color='blue')
+    ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
+    ax_3rd.plot(time, co2, label='CO2 sim', color='seagreen')
+
+    ax.scatter(df_exp_2['time [h]'], df_exp_2['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
+    ax_2nd.scatter(df_exp_2['time [h]'], df_exp_2['Glucose hplc [g/L]'], label='Glucose conc. exp', color='chocolate')
+    ax_3rd.plot(df_exp_2['time [h]'], df_exp_2['Offgas CO2 [g/L]'], label='CO2 exp', color='darkseagreen')
+    ax.locator_params(axis='x', nbins=20)
+
+    ax.set_xlabel('time [h]')
+    ax.set_ylabel('Biomass [g/L]')
+    ax_2nd.set_ylabel('Substrate [g/L]')
+    ax_3rd.set_ylabel('CO2 [g/L]', color='seagreen')
+    
+    ax_3rd.spines['right'].set_position(('outward', 60))
+
+    handles, labels = ax.get_legend_handles_labels()
+    handles_2nd, labels_2nd = ax_2nd.get_legend_handles_labels()
+    handles_3rd, labels_3rd = ax_3rd.get_legend_handles_labels()
+    all_handles = handles + handles_2nd + handles_3rd
+    all_labels = labels + labels_2nd + labels_3rd
+
+    # Create a single legend using the combined handles and labels
+    ax.legend(all_handles, all_labels, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncols=4)
