@@ -86,11 +86,11 @@ def model_single_timestep_S(i, c_glucose, c_biomass, c_co2, vol):
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
 
-    Yxs = param['set_6parameter'][0]
-    Yco2s = param['set_6parameter'][1]
-    qs_max = param['set_6parameter'][2]
-    Ks = param['set_6parameter'][3]
-    lag = param['set_6parameter'][5]
+    Yxs = param['set_6parameter_no2'][0]
+    Yco2s = param['set_6parameter_no2'][1]
+    qs_max = param['set_6parameter_no2'][2]
+    Ks = param['set_6parameter_no2'][3]
+    lag = param['set_6parameter_no2'][5]
 
     # time steps need to be adapted for experimental data input
     t = i * delta_t
@@ -196,10 +196,11 @@ def plot_show(time, biomass, substrate, co2):
 
     ax.plot(time, biomass, label='Biomass sim', color='blue')
     ax_2nd.plot(time, substrate, label='Substrate sim', color='orange')
-    ax.scatter(df_exp_2['time [h]'], df_exp_2['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
-    #ax_2nd.scatter(df_exp_2['time [h]'], df_exp['Glucose [g/L]'], label='Glucose conc. exp', color='chocolate')
-    ax_3rd.plot(df_exp_2['time [h]'], df_exp_2['Offgas CO2 [g/L]'], label='CO2 exp', color='darkseagreen')
     ax_3rd.plot(time, co2, label='CO2 sim', color='seagreen')
+
+    ax.scatter(df_exp_2['time [h]'], df_exp_2['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
+    ax_2nd.scatter(df_exp_2['time [h]'], df_exp_2['Glucose hplc [g/L]'], label='Glucose conc. exp', color='chocolate')
+    ax_3rd.plot(df_exp_2['time [h]'], df_exp_2['Offgas CO2 [g/L]'], label='CO2 exp', color='darkseagreen')
     ax.locator_params(axis='x', nbins=20)
 
     ax.set_xlabel('time [h]')
