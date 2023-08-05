@@ -78,6 +78,7 @@ def model_single_timestep_S(i, c_glucose, c_biomass, c_co2, vol):
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
     """
+    F_in = df_exp_2['Feed total [L/min]']*60 #[L/h]
 
     # Simulation settings
     t0 = 0
@@ -116,11 +117,12 @@ def model_single_timestep_S(i, c_glucose, c_biomass, c_co2, vol):
 
 # Load experimental data
 df_exp_2 = pd.read_csv('data/batch_no2/data_combined.csv')
-# we can not use that because the total feed contains acid and base
-F_glu = df_exp_2['Glucose feed [L/min]']*60 #[L/h]
-F_in = df_exp_2['Feed total [L/min]']*60 #[L/h]
 
 def model_batch_no2(parameters):
+    # we can not use that because the total feed contains acid and base
+    F_glu = df_exp_2['Glucose feed [L/min]']*60 #[L/h]
+    F_in = df_exp_2['Feed total [L/min]']*60 #[L/h]
+
     # Simulation settings
     t0 = 0
     t_end = 36.8
