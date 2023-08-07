@@ -410,7 +410,7 @@ def model_estimation_no2(parameters):
 
     # Simulation settings
     t0 = 0
-    t_end = 36.8
+    t_end = 20.0
     delta_t = 1
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
@@ -508,7 +508,7 @@ def plot_save_estimation_no2(time, biomass, substrate, co2, title, plot_name, se
     plt.title(title)
     
     # Save images in the corresponding folder
-    directory = f'data/batch_no2/estimation/0308_4'
+    directory = f'data/batch_no2/estimation/0708_1'
 
     # Create the directory if it doesn't exist
     if not os.path.exists(directory):

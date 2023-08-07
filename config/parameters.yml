@@ -1,3 +1,5 @@
+# Wo kommen Werte her
+
 # Parameters
 mu_max: 0.2 # [1/h]  0.3514; 0.2;  if we consider no exponential growth, smallest time interval: 0.923 ; expoential growth + smallest time intevall: 0.84 ; expoential growth + Start to sampleX: 0,375; 
 m_s: 0.0094 # from 2015 Shen
