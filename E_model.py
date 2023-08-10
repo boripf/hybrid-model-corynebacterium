@@ -193,7 +193,7 @@ def model_S(parameters, delta_t):
 
     return df
 
-def model_S_no2(parameters, delta_t):
+def model_S_no2(set1, set2, delta_t):
     """
     Simulates the fermentation process based on the provided parameters.
     Args:
@@ -206,8 +206,7 @@ def model_S_no2(parameters, delta_t):
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
     """
-
-    # Simulation settings
+# Simulation settings
     t0 = 0
     t_end = 36.8
     dt = delta_t/60
@@ -216,24 +215,17 @@ def model_S_no2(parameters, delta_t):
     # Extract parameters
     X0 = param['X0_2']
     S0 = param['S0']
-    V0 = param['V0_2']
     co20 = param['co20']
+    V0 = param['V0_2']
     c_glu_feed = param['c_glu_feed']
-
-    Yxs = parameters[0]
-    Yco2s = parameters[1]
-    qs_max = parameters[2]
-    Ks = parameters[3]
-    m_s = parameters[4]
-    lag = parameters[5]
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
     biomass = np.zeros(num_steps)
     substrate = np.zeros(num_steps)
-    volume = np.zeros(num_steps)
     co2 = np.zeros(num_steps)
-    
+    volume = np.zeros(num_steps)
+
     # Set initial values
     biomass[0] = X0
     substrate[0] = S0
@@ -252,25 +244,30 @@ def model_S_no2(parameters, delta_t):
         f_glucose = F_glu_2[t]
         f_total = F_in_2[t]
         
+        if f_glucose < 0.001:
+            p = set1
+        else:
+            p = set2
+        
         # since the glucose concentration can't be negative, it is set to zero
         if c_glucose < 0:
             c_glucose = 0
 
         # Update growth and glucose uptake rate
-        qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
-        mu = qs * Yxs
+        qs = p[2] * c_glucose / (p[3] + c_glucose) * (1 / (np.exp(c_biomass * p[5])))
+        mu = qs * p[0]
 
         # Update biomass and substrate concentrations
         dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
         dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
-        dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - ((c_glucose / vol) * dV_dt)
+        dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + p[4]) * c_biomass) - ((c_glucose / vol) * dV_dt)
         # [gs/(Lh)]
-        dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
+        dCO2_dt = p[1] * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
 
         biomass[i] = c_biomass + dX_dt * dt # [gx/L]
         substrate[i] = c_glucose + dS_dt * dt # [gs/L]
         co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
-        volume[i] = vol + dV_dt * dt  # [L]
+        volume[i] = vol + dV_dt * dt # [L]
 
         df = pd.DataFrame()
         df[['time', 'biomass', 'glucose', 'co2']] = pd.DataFrame({

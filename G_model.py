@@ -79,6 +79,7 @@ def model_single_timestep_S(i, c_glucose, c_biomass, c_co2, vol):
         substrate (array): Array of substrate concentrations.
     """
     F_in = df_exp_2['Feed total [L/min]']*60 #[L/h]
+    F_glu = df_exp_2['Glucose feed [L/min]']*60
 
     # Simulation settings
     t0 = 0
@@ -87,24 +88,27 @@ def model_single_timestep_S(i, c_glucose, c_biomass, c_co2, vol):
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
 
-    Yxs = param['set_6parameter_no2'][0]
-    Yco2s = param['set_6parameter_no2'][1]
-    qs_max = param['set_6parameter_no2'][2]
-    Ks = param['set_6parameter_no2'][3]
-    lag = param['set_6parameter_no2'][5]
+    set1 = param['set_part1']
+    set2 = param['set_part2']
 
     # time steps need to be adapted for experimental data input
     t = i * delta_t
+    f_glucose = F_glu[t]
     f_total = F_in[t]
+
+    if f_glucose < 0.001:
+        p = set1
+    else:
+        p = set2
     
     # Update growth and glucose uptake rate
-    qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
-    mu = qs * Yxs
+    qs = p[2] * c_glucose / (p[3] + c_glucose) * (1 / (np.exp(c_biomass * p[5])))
+    mu = qs * p[0]
 
     # Update biomass and substrate concentrations
     dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
     dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
-    dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
+    dCO2_dt = p[1] * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
 
     biomass = c_biomass + dX_dt * dt # [gx/L]
     substrate = c_glucose

@@ -174,12 +174,6 @@ def model_2parts(delta_t):
 
     set1 = param['set_part1']
     set2 = param['set_part2']
-    # Yxs_1 = param['set_part1'][0]; Yxs_2 = param['set_part2'][0]
-    # Yco2s_1 = param['set_part1'][1]; Yco2s_2 = param['set_part2'][1]
-    # qs_max_1 = param['set_part1'][2]; qs_max_2 = param['set_part2'][2]
-    # Ks_1 = param['set_part1'][3]; Ks_2 = param['set_part2'][3]
-    # m_s_1 = param['set_part1'][4]; m_s_2 = param['set_part2'][4]
-    # lag_1 = param['set_part1'][5]; lag_2 = param['set_part2'][5]
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
