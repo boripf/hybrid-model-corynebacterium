@@ -3,7 +3,9 @@ import pandas as pd
 import yaml
 import matplotlib.pyplot as plt
 
-# import experimental data
+####-------------------------------------------------------------------------------------------------
+
+# Import experimental data
 df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
 df_exp_2 = pd.read_csv('data/batch_no2/data_combined.csv')
 
@@ -16,6 +18,8 @@ F_in_2 = df_exp_2['Feed total [L/min]']*60
 # Load parameters from YAML file
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
+
+####-------------------------------------------------------------------------------------------------
 
 # Calculate growth rate and substrate uptake rate
 def mu_eq(qs, Yxs):
@@ -40,10 +44,6 @@ def qs_eq(qs_max, c_glucose, Ks_qs, c_biomass, lag):
     # -- MONOD + METABOLIZED GLU / insert: qs_max, c_glucose, Ks_qs, c_biomass, lag
     qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(c_biomass * lag)))
     return qs
-
-def co2_eq(YxCO2, mu, dt_dx):
-    co2 = YxCO2 * mu * dt_dx
-    return co2
 
 def model(delta_t):
     """
@@ -126,7 +126,7 @@ def model(delta_t):
     return time, biomass, substrate, co2
 
 def plot_simulation(time, biomass, substrate, co2, title):
-    fig, ax = plt.subplots(figsize=(12,6))
+    fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
     ax_3rd = ax.twinx()
 
@@ -157,6 +157,8 @@ def plot_simulation(time, biomass, substrate, co2, title):
 
     plt.title(title)
     plt.show()
+
+####-------------------------------------------------------------------------------------------------
 
 def model_2parts(delta_t):
     # Simulation settings
