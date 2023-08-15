@@ -5,6 +5,8 @@ Hybrid semi-parametric model that includes a mechanistic model and a data-driven
 - advantages of this approach
 - purpose of the project
 
+![Structure of hybrid semi-parametric Model](images\hybrid_model_structure.png)
+
 ### Structure
 
 ![Project timeline](images/TimeLine.png)
@@ -14,16 +16,14 @@ Each file starts with a letter which should represent the steps of development w
 - config
     - parameters.yml (fermentation parameters are defined)
 - data
-    - fermentation raw data (contains all the raw experimental data)
-    - pre treated (contains modified data sets)
-    - data_combined.csv (contains the preprocessed data with calculated parameters and is used for further processing)
-    - Yxs_table (contains biomass & glucose concentrations with calculated parameters)
-- images (contains plots of simulations)
+    - batch_no1 (raw data, preprocessed dataset, parameter estimation, generated batches)
+    - batch_no2 (raw data, preprocessed dataset, parameter estimation, generated batches)
+- images
 
-**A** is looking fundamentally into the data which is firstly preprocessed to be able to work with it and secondly to understand what is happening during the process.
-**B** contains the first most simple model.
-**C** is a development of B and contains parameter sampling based on LHS, an automated testing of different equations and an objective function.
-**D** captures the sensitivity analysis.
+**A** Data Preprocessing.
+**B** Mechanistic Models.
+**C** Parameter Estimation.
+**D** Sensitivity Analysis.
 **E** Data Generation
 **F** Random Forest
 **G** Hybrid Model
