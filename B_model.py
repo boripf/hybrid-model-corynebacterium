@@ -5,21 +5,22 @@ import matplotlib.pyplot as plt
 
 ####-------------------------------------------------------------------------------------------------
 
-# Import experimental data
-df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
-df_exp_2 = pd.read_csv('data/batch_no2/data_combined.csv')
-
-F_glu = df_exp['Glucose feed [L/min]']*60 # [L/h]
-F_in = df_exp['Feed total [L/min]']*60
-
-F_glu_2 = df_exp_2['Glucose feed [L/min]']*60
-F_in_2 = df_exp_2['Feed total [L/min]']*60
-
 # Load parameters from YAML file
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
 
+# Import experimental data
+df_exp_1 = pd.read_csv('data/batch_no1/data_combined.csv')
+df_exp_2 = pd.read_csv('data/batch_no2/data_combined.csv')
+
+F_glu_1 = df_exp_1['Glucose feed [L/min]']*60 # [L/h]
+F_in_1 = df_exp_1['Feed total [L/min]']*60 # [L/h]
+
+F_glu_2 = df_exp_2['Glucose feed [L/min]']*60 # [L/h]
+F_in_2 = df_exp_2['Feed total [L/min]']*60 # [L/h]
+
 ####-------------------------------------------------------------------------------------------------
+# BATCH NO. 1 - Library of reaction kinetics
 
 # Calculate growth rate and substrate uptake rate
 def mu_eq(qs, Yxs):
@@ -45,21 +46,21 @@ def qs_eq(qs_max, c_glucose, Ks_qs, c_biomass, lag):
     qs = qs_max * c_glucose / (Ks_qs + c_glucose) * (1 / (np.exp(c_biomass * lag)))
     return qs
 
-def model(delta_t):
+def model_batch_no1(delta_t):
     """
-    Simulates the fermentation process based on the provided parameters.
     Args:
-        delta_t (float): Time step size in seconds.
+        delta_t (float): Time step size in minutes.
     Returns:
         time (array): Array of time values.
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
+        co2 (array): Array of co2 concentrations.
     """
 
     # Simulation settings
     t0 = 0
     t_end = 45.8
-    dt = delta_t / 60  # Convert delta_t to minutes
+    dt = delta_t / 60  # Convert delta_t to hours
     num_steps = int((t_end - t0) / dt) + 1  # Number of time steps
 
     # Extract parameters
@@ -73,6 +74,8 @@ def model(delta_t):
     qs_max = param['qs_max']
     m_s = param['m_s']
     lag = param['lag']
+
+    # Initial values
     X0 = param['X0']
     S0 = param['S0']
     V0 = param['V0']
@@ -101,12 +104,8 @@ def model(delta_t):
 
         # time steps need to be adapted for experimental data input
         t = i * delta_t
-        f_glucose = F_glu[t]
-        f_total = F_in[t]
-
-        # since the glucose concentration can't be negative, it is set to zero
-        if c_glucose < 0:
-            c_glucose = 0
+        f_glucose = F_glu_1[t]
+        f_total = F_in_1[t]
 
         # Update growth and glucose uptake rate
         qs = qs_eq(qs_max, c_glucose, Ks_qs, c_biomass, lag)
@@ -117,15 +116,19 @@ def model(delta_t):
         dX_dt = mu * c_biomass - (c_biomass * (dV_dt/ vol))   # [gx/(Lh)]
         dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - (c_glucose * (dV_dt / vol))  # [gs/(Lh)]
         dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
-        
+
         biomass[i] = c_biomass + dX_dt * dt  # [gx/L]
         substrate[i] = c_glucose + dS_dt * dt  # [gs/L]
         co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
         volume[i] = vol + dV_dt * dt  # [L]
 
+        # since the glucose concentration can't be negative, it is set to zero
+        if substrate[i] < 0:
+            substrate[i] = 0
+
     return time, biomass, substrate, co2
 
-def plot_simulation(time, biomass, substrate, co2, title):
+def plot_simulation_no1(time, biomass, substrate, co2, title):
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
     ax_3rd = ax.twinx()
@@ -135,9 +138,9 @@ def plot_simulation(time, biomass, substrate, co2, title):
     ax_3rd.plot(time, co2, label='CO2 sim', color='seagreen')
     ax.locator_params(axis='x', nbins=20)
     
-    ax.scatter(df_exp['time [h]'], df_exp['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
-    ax_2nd.scatter(df_exp['time [h]'], df_exp['Glucose [g/L]'], label='Glucose exp', color='chocolate')
-    ax_3rd.plot(df_exp['time [h]'], df_exp['Offgas CO2 [g/L]- smoothed'], label='CO2 exp', color='darkseagreen')  
+    ax.scatter(df_exp_1['time [h]'], df_exp_1['Biomass [g/L]'], label='Biomass exp', color='dodgerblue')
+    ax_2nd.scatter(df_exp_1['time [h]'], df_exp_1['Glucose [g/L]'], label='Glucose exp', color='chocolate')
+    ax_3rd.plot(df_exp_1['time [h]'], df_exp_1['Offgas CO2 [g/L]- smoothed'], label='CO2 exp', color='darkseagreen')  
 
     ax.set_xlabel('time [h]')
     ax.set_ylabel('Biomass [g/L]', color='blue')
@@ -152,28 +155,39 @@ def plot_simulation(time, biomass, substrate, co2, title):
     all_handles = handles + handles_2nd + handles_3rd
     all_labels = labels + labels_2nd + labels_3rd
 
-    # Create a single legend using the combined handles and labels
     ax.legend(all_handles, all_labels)
 
     plt.title(title)
     plt.show()
 
 ####-------------------------------------------------------------------------------------------------
+# BATCH NO. 2 - Segment fermentation into 2 phases
 
-def model_2parts(delta_t):
+def model_batch_no2(delta_t):
+    """
+    Args:
+        delta_t (float): Time step size in minutes.
+    Returns:
+        time (array): Array of time values.
+        biomass (array): Array of biomass concentrations.
+        substrate (array): Array of substrate concentrations.
+        co2 (array): Array of co2 concentrations.
+    """
+
     # Simulation settings
     t0 = 0
     t_end = 36.8
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
 
-    # Extract parameters
+    # Initial values
     X0 = param['X0_2']
     S0 = param['S0']
     co20 = param['co20']
     V0 = param['V0_2']
     c_glu_feed = param['c_glu_feed']
 
+    # Define 2 parameter sets - previously found through part C
     set1 = param['set_part1']
     set2 = param['set_part2']
 
@@ -202,15 +216,12 @@ def model_2parts(delta_t):
         f_glucose = F_glu_2[t]
         f_total = F_in_2[t]
         
+        # switch from parameter set 1 to set 2 when glucose is fed into the reactor
         if f_glucose < 0.001:
             p = set1
         else:
             p = set2
         
-        # since the glucose concentration can't be negative, it is set to zero
-        if c_glucose < 0:
-            c_glucose = 0
-
         # Update growth and glucose uptake rate
         qs = p[2] * c_glucose / (p[3] + c_glucose) * (1 / (np.exp(c_biomass * p[5])))
         mu = qs * p[0]
@@ -227,9 +238,13 @@ def model_2parts(delta_t):
         co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
         volume[i] = vol + dV_dt * dt # [L]
 
+        # since the glucose concentration can't be negative, it is set to zero
+        if substrate[i] < 0:
+            substrate[i] = 0
+
     return time, biomass, substrate, co2
 
-def plot_simulation_2parts(time, biomass, substrate, co2, title):
+def plot_simulation_no2(time, biomass, substrate, co2, title):
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
     ax_3rd = ax.twinx()
@@ -257,7 +272,7 @@ def plot_simulation_2parts(time, biomass, substrate, co2, title):
     all_labels = labels + labels_2nd + labels_3rd
 
     # Create a single legend using the combined handles and labels
-    ax.legend(all_handles, all_labels)
+    ax.legend(all_handles, all_labels, loc='upper center')
 
     plt.title(title)
     plt.show()

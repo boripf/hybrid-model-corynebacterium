@@ -5,7 +5,7 @@ Hybrid semi-parametric model that includes a mechanistic model and a data-driven
 - advantages of this approach
 - purpose of the project
 
-### File Structure
+### Structure
 
 ![Project timeline](images/TimeLine.png)
 
