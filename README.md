@@ -1,4 +1,4 @@
-# Hybrid semi-parametric model for fermentation of Corynebacterium glutamicum
+# Hybrid semi-parametric model for fermentation of *Corynebacterium glutamicum*
 
 ### Introduction
 This project is about designing a hybrid semi-parametric model for the fermentation of *Corynebacterium glutamicum* that combines two categories of process modeling. While modeling involves translating knowledge about a given process into an abstract mathematical framework, one can distinguish between whitebox and blackbox models. White box models require a deep understanding of the process, are more transparent, and include mechanistic models. Black box models, on the other hand, are less transparent and are derived exclusively from process data.
@@ -10,7 +10,10 @@ Hybrid semi-parametric models have an advantage over traditional models that are
 
 The hybrid semi-parametric model developed in this project takes biomass and $CO_2$ concentration at time step t as input. The previously trained data-driven model calculates the glucose concentration for the same time step t, which is now the input to the mechanistic model. The latter calculates the biomass and the $CO_2$ concentration for the next time step t+1. This process is repeated for each time step. The choice of these parameters is due to the lack of other process parameters. In a realistic scenario, well and continuously measured parameters such as temperature, dissolved oxygen, pH and other offgases are usually entered into the data-driven model to calculate e.g. glucose concentration. Since these parameters have been controlled and kept constant, they lack the variability and changes that models thrive on to understand the correlation between input and output.
 
-![Structure of hybrid semi-parametric Model](images/hybrid_model_structure.png)
+<img src="images/hybrid_model_structure.png"
+     alt="Structure of hybrid semi-parametric Model"
+     style="float: center"
+     width="600" />
 
 However, the goal of the project is to understand the potential and challenges of developing a hybrid semi-parametric model based on real experimental data. Despite the limited number of input parameters, insights can be gained into the adaptability of the model, its limitations, and the interplay between data-based and process-based approaches in complex systems.
 
