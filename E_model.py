@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 import yaml
 
 # Load experimental data
-df_exp = pd.read_csv('data/batch_no1/data_combined.csv')
+df_exp_1 = pd.read_csv('data/batch_no1/data_combined.csv')
 df_exp_2 = pd.read_csv('data/batch_no2/data_combined.csv')
 
 # we can not use that because the total feed contains acid and base
-F_glu = df_exp['Glucose feed [L/min]']*60 #[L/h]
-F_in = df_exp['Feed total [L/min]']*60 #[L/h]
+F_glu_1 = df_exp_1['Glucose feed [L/min]']*60 #[L/h]
+F_in_1 = df_exp_1['Feed total [L/min]']*60 #[L/h]
 
 F_glu_2 = df_exp_2['Glucose feed [L/min]']*60
 F_in_2 = df_exp_2['Feed total [L/min]']*60
@@ -18,18 +18,17 @@ F_in_2 = df_exp_2['Feed total [L/min]']*60
 with open('config/parameters.yml', 'r') as file:
     param = yaml.safe_load(file)
 
-def model_qs(parameters, delta_t):
+def model_qs_no1(parameters, delta_t):
     """
-    Simulates the fermentation process based on the provided parameters.
     Args:
-        params (dict): Dictionary containing the model parameters.
-        t0 (float): Initial time.
-        t_end (float): End time.
-        dt (float): Time step size.
+        parameters (list): List containing the model parameters.
+        delta_t (int): Integer that defines the sample frequency
+
     Returns:
         time (array): Array of time values.
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
+        co2 (array): Array of co2 concentrations.
     """
 
     # Simulation settings
@@ -38,17 +37,11 @@ def model_qs(parameters, delta_t):
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
 
-    # Extract parameters
+    # Initial values
     X0 = param['X0']
     S0 = param['S0']
     V0 = param['V0']
     c_glu_feed = param['c_glu_feed']
-
-    Yxs = parameters[0]
-    qs_max = parameters[1]
-    Ks = parameters[2]
-    m_s = parameters[3]
-    lag = parameters[4]
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
@@ -63,6 +56,13 @@ def model_qs(parameters, delta_t):
     volume[0] = V0
     uptake_rate[0] = np.nan
 
+    # Set parameters from input
+    Yxs = parameters[0]
+    qs_max = parameters[1]
+    Ks = parameters[2]
+    m_s = parameters[3]
+    lag = parameters[4]
+
     # Simulation loop
     for i in range(1, num_steps):
         c_glucose = substrate[i-1]
@@ -71,12 +71,8 @@ def model_qs(parameters, delta_t):
 
         # time steps need to be adapted for experimental data input
         t = i * delta_t
-        f_glucose = F_glu[t]
-        f_total = F_in[t]
-        
-        # since the glucose concentration can't be negative, it is set to zero
-        if c_glucose < 0:
-            c_glucose = 0
+        f_glucose = F_glu_1[t]
+        f_total = F_in_1[t]
 
         # Update growth and glucose uptake rate
         qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
@@ -94,6 +90,10 @@ def model_qs(parameters, delta_t):
         volume[i] = vol + dV_dt * dt # [L]
         uptake_rate[i] = qs
 
+        # since the glucose concentration can't be negative, it is set to zero
+        if substrate[i] < 0:
+            substrate[i] = 0
+
         df = pd.DataFrame()
         df[['time', 'biomass', 'glucose', 'qs']] = pd.DataFrame({
             'time': time, 
@@ -104,115 +104,23 @@ def model_qs(parameters, delta_t):
 
     return df
 
-def model_S(parameters, delta_t):
-    """
-    Simulates the fermentation process based on the provided parameters.
-    Args:
-        params (dict): Dictionary containing the model parameters.
-        t0 (float): Initial time.
-        t_end (float): End time.
-        dt (float): Time step size.
-    Returns:
-        time (array): Array of time values.
-        biomass (array): Array of biomass concentrations.
-        substrate (array): Array of substrate concentrations.
-    """
-
-    # Simulation settings
-    t0 = 0
-    t_end = 45.8
-    dt = delta_t/60
-    num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
-
-    # Extract parameters
-    X0 = param['X0']
-    S0 = param['S0']
-    V0 = param['V0']
-    co20 = param['co20']
-    c_glu_feed = param['c_glu_feed']
-
-    Yxs = parameters[0]
-    Yco2s = parameters[1]
-    qs_max = parameters[2]
-    Ks = parameters[3]
-    m_s = parameters[4]
-    lag = parameters[5]
-
-    # Arrays to store results
-    time = np.linspace(t0, t_end, num_steps)
-    biomass = np.zeros(num_steps)
-    substrate = np.zeros(num_steps)
-    volume = np.zeros(num_steps)
-    co2 = np.zeros(num_steps)
-    
-    # Set initial values
-    biomass[0] = X0
-    substrate[0] = S0
-    co2[0] = co20
-    volume[0] = V0
-
-    # Simulation loop
-    for i in range(1, num_steps):
-        c_glucose = substrate[i-1]
-        c_biomass = biomass[i-1]
-        c_co2 = co2[i-1]
-        vol = volume[i-1]
-
-        # time steps need to be adapted for experimental data input
-        t = i * delta_t
-        f_glucose = F_glu[t]
-        f_total = F_in[t]
-        
-        # since the glucose concentration can't be negative, it is set to zero
-        if c_glucose < 0:
-            c_glucose = 0
-
-        # Update growth and glucose uptake rate
-        qs = qs_max * c_glucose / (Ks + c_glucose) * (1 / (np.exp(c_biomass * lag)))
-        mu = qs * Yxs
-
-        # Update biomass and substrate concentrations
-        dV_dt = f_total - (0.4*60/num_steps) # [L/h] not complete -- include samples + evaporation
-        dX_dt = mu * c_biomass - (c_biomass / vol) * dV_dt # [gx/(Lh)]
-        dS_dt = ((f_glucose / vol) * (c_glu_feed - c_glucose)) - ((qs + m_s) * c_biomass) - ((c_glucose / vol) * dV_dt)
-        # [gs/(Lh)]
-        dCO2_dt = Yco2s * qs * c_biomass  - (c_co2 * (dV_dt / vol)) # [g/(Lh)]
-
-        biomass[i] = c_biomass + dX_dt * dt # [gx/L]
-        substrate[i] = c_glucose + dS_dt * dt # [gs/L]
-        co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
-        volume[i] = vol + dV_dt * dt  # [L]
-
-        df = pd.DataFrame()
-        df[['time', 'biomass', 'glucose', 'co2']] = pd.DataFrame({
-            'time': time, 
-            'biomass': biomass, 
-            'glucose': substrate,
-            'co2': co2
-            })
-
-    return df
-
 def model_S_no2(set1, set2, delta_t):
     """
-    Simulates the fermentation process based on the provided parameters.
     Args:
-        params (dict): Dictionary containing the model parameters.
-        t0 (float): Initial time.
-        t_end (float): End time.
-        dt (float): Time step size.
+        set1 (list): List containing the model parameters for batch phase.
+        set2 (list): List containing the model parameters for fed-batch phase.
+        delta_t (int): Integer that defines the sample frequency
+
     Returns:
-        time (array): Array of time values.
-        biomass (array): Array of biomass concentrations.
-        substrate (array): Array of substrate concentrations.
+        df (dataframe): Containing time, biomass, substrate and co2.
     """
-# Simulation settings
+    # Simulation settings
     t0 = 0
     t_end = 36.8
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
 
-    # Extract parameters
+    # Initial values
     X0 = param['X0_2']
     S0 = param['S0']
     co20 = param['co20']
@@ -249,10 +157,6 @@ def model_S_no2(set1, set2, delta_t):
         else:
             p = set2
         
-        # since the glucose concentration can't be negative, it is set to zero
-        if c_glucose < 0:
-            c_glucose = 0
-
         # Update growth and glucose uptake rate
         qs = p[2] * c_glucose / (p[3] + c_glucose) * (1 / (np.exp(c_biomass * p[5])))
         mu = qs * p[0]
@@ -269,6 +173,10 @@ def model_S_no2(set1, set2, delta_t):
         co2[i] = c_co2 + dCO2_dt * dt  # [g/L]
         volume[i] = vol + dV_dt * dt # [L]
 
+        # since the glucose concentration can't be negative, it is set to zero
+        if substrate[i] < 0:
+            substrate[i] = 0
+
         df = pd.DataFrame()
         df[['time', 'biomass', 'glucose', 'co2']] = pd.DataFrame({
             'time': time, 
@@ -279,7 +187,7 @@ def model_S_no2(set1, set2, delta_t):
 
     return df
 
-def show_plot(df):
+def show_plot_no1(df):
     fig, ax = plt.subplots()
     ax_2nd = ax.twinx()
     ax_3rd = ax.twinx()
