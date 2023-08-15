@@ -1,17 +1,14 @@
-# Wo kommen Werte her
-
-# Parameters
-mu_max: 0.2 # [1/h]  0.3514; 0.2;  if we consider no exponential growth, smallest time interval: 0.923 ; expoential growth + smallest time intevall: 0.84 ; expoential growth + Start to sampleX: 0,375; 
+# Literature values
+mu_max: 0.2 # [1/h]
 m_s: 0.0094 # from 2015 Shen
 Ks: 7.0  # [g/L]
-Ks_qs: 0.6814 # 0.035  # [g/L] 
+Ks_qs: 0.6814 # [g/L] 
 Ki: 7.150  # [g/L]
-qs_max: 1.1255 # 1.1 # 0.57  # [g_substrate/g_biomass*h] ; if we consider no exponential growth, smallest time interval: 1,13 ; calculated with mu_max/yield coefficient(for the batch phase):  0,68 , 
-Yxs: 0.4597 #0.48 [g_biomass/g_substrate] from 2015 Shen: 0.5264; calculated with mu_max/yield coefficient(for the batch phase): 1,24 ; Assumption that 340 g/l have been consumed: 0.067 = 0.4 cmol BM/cmol GLC ; taking whole fed batch into accont: Yxs_consumed: 0,32
-c_glu_feed: 350 # [g/L]
-lag: 0.1913 # 0.0057 
+qs_max: 1.1255  # [g_substrate/g_biomass*h]
+Yxs: 0.4597 #0.48 [g_biomass/g_substrate] from 2015 Shen: 0.5264
+lag: 0.1913 # 
 X_max: 23.16 # [g/L]
-Yco2_x: 0.0012 # ausgerechnet: 0.00019021
+Yco2_x: 0.0012
 
 # Initial conditions‚
 X0: 0.5  # Initial biomass [g/L]
@@ -21,10 +18,13 @@ V0: 1.0 # Initial volume in the reactor [L]
 V0_2: 4.0 # Initial volume in the reactor [L] for batch no.2
 co20: 0.0008  # Initial CO2 concentration
 
+# Batch No. 1
 set_parameter: [0.4597, 1.1255, 0.6814, 0.0094, 0.1913] # Yxs, qs_max, Ks, m_s, lag
 set_6parameter: [0.4597, 0.001177, 1.1255, 0.6814, 0.0094, 0.1913] # Yxs, Yco2s, qs_max, Ks, m_s, lag
+
+# Batch No.2 - one set throughout fermentation
 set_6parameter_no2: [0.441, 0.003, 1.603, 0.651, 0.0451, 0.175] # Yxs, Yco2s, qs_max, Ks, m_s, lag
 
+# Batch No.2 - 2 phases switch
 set_part1: [0.554746, 0.003358, 1.276025, 0.687328, 0.034399, 0.226874] # Yxs, Yco2s, qs_max, Ks, m_s, lag
 set_part2: [0.843, 0.0048, 2.166, 0.527, 0.045, 0.0] # Yxs, Yco2s, qs_max, Ks, m_s, lag
-# 0.8434702289, 0.0048306784, 2.1664047225, 0.5270666827, 0.0451212523, 0
