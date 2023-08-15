@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import yaml
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
 
 ####-------------------------------------------------------------------------------------------------
 
@@ -18,6 +19,11 @@ F_in_1 = df_exp_1['Feed total [L/min]']*60 # [L/h]
 
 F_glu_2 = df_exp_2['Glucose feed [L/min]']*60 # [L/h]
 F_in_2 = df_exp_2['Feed total [L/min]']*60 # [L/h]
+
+# experimental data from batch No. 2
+biomass_exp_2 = df_exp_2['Biomass [g/L]']
+substrate_exp_2 = df_exp_2['Glucose hplc [g/L]']
+co2_exp_2 = df_exp_2['Offgas CO2 [g/L]']
 
 ####-------------------------------------------------------------------------------------------------
 # BATCH NO. 1 - Library of reaction kinetics
@@ -276,3 +282,26 @@ def plot_simulation_no2(time, biomass, substrate, co2, title):
 
     plt.title(title)
     plt.show()
+
+def objective_function_no2(delta_t):
+    # Solve the model using the optimal parameters
+    time_pred, biomass_pred, substrate_pred, co2_pred = model_batch_no2(delta_t)  # Solve the model using the current parameters
+    biomass = pd.concat([biomass_exp_2, pd.Series(biomass_pred)], axis=1, keys=['biomass_exp', 'biomass_pred']).dropna()
+    biomass_exp_ = biomass['biomass_exp'].values
+    biomass_pred_ = biomass['biomass_pred'].values
+    mse_x = mean_squared_error(biomass_exp_, biomass_pred_)  # Calculate mean squared error for biomass
+
+    glucose = pd.concat([substrate_exp_2, pd.Series(substrate_pred)], axis=1, keys=['substrate_exp', 'substrate_pred']).dropna()
+    substrate_exp_ = glucose['substrate_exp'].values
+    substrate_pred_ = glucose['substrate_pred'].values
+    mse_s = mean_squared_error(substrate_exp_, substrate_pred_)  # Calculate mean squared error for substrate
+
+    co2 = pd.concat([co2_exp_2, pd.Series(co2_pred)], axis=1, keys=['co2_exp', 'co2_pred']).dropna()
+    co2_exp_ = co2['co2_exp'].values
+    co2_pred_ = co2['co2_pred'].values
+    mse_co2 = mean_squared_error(co2_exp_, co2_pred_)  # Calculate mean squared error for substrate
+    
+    # Calculate the combined rmse
+    mse = (mse_x + mse_s + mse_co2) / 3
+    rmse = np.sqrt(mse)  # Calculate root mean squared error
+    return rmse

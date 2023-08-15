@@ -19,16 +19,14 @@ with open('config/parameters.yml', 'r') as file:
 
 def model(parameters):
     """
-    Simulates the fermentation process based on the provided parameters.
     Args:
-        params (dict): Dictionary containing the model parameters.
-        t0 (float): Initial time.
-        t_end (float): End time.
-        dt (float): Time step size.
+        parameters (list): List containing the model parameters.
+
     Returns:
         time (array): Array of time values.
         biomass (array): Array of biomass concentrations.
         substrate (array): Array of substrate concentrations.
+        co2 (array): Array of co2 concentrations.
     """
 
     # Simulation settings
@@ -38,17 +36,11 @@ def model(parameters):
     dt = delta_t/60
     num_steps = int((t_end - t0) / dt) + 1 # Number of time steps
 
-    # Extract parameters
+    # Initial values
     X0 = param['X0']
     S0 = param['S0']
     V0 = param['V0']
     c_glu_feed = param['c_glu_feed']
-
-    Yxs = parameters[0]
-    qs_max = parameters[1]
-    Ks = parameters[2]
-    m_s = parameters[3]
-    lag = parameters[4]
 
     # Arrays to store results
     time = np.linspace(t0, t_end, num_steps)
@@ -60,6 +52,13 @@ def model(parameters):
     biomass[0] = X0
     substrate[0] = S0
     volume[0] = V0
+
+    # Set parameters from input
+    Yxs = parameters[0]
+    qs_max = parameters[1]
+    Ks = parameters[2]
+    m_s = parameters[3]
+    lag = parameters[4]
 
     # Simulation loop
     for i in range(1, num_steps):
