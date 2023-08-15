@@ -13,7 +13,7 @@ The hybrid semi-parametric model developed in this project takes biomass and $CO
 <img src="images/hybrid_model_structure.png"
      alt="Structure of hybrid semi-parametric Model"
      style="float: center"
-     width="600" />
+     width="400" />
 
 However, the goal of the project is to understand the potential and challenges of developing a hybrid semi-parametric model based on real experimental data. Despite the limited number of input parameters, insights can be gained into the adaptability of the model, its limitations, and the interplay between data-based and process-based approaches in complex systems.
 
@@ -29,10 +29,10 @@ Each file starts with a letter which should represent the steps of development w
     - batch_no1 (raw data, preprocessed dataset, parameter estimation, generated batches)
     - batch_no2 (raw data, preprocessed dataset, parameter estimation, generated batches)
 - images
-- **A**: Data Preprocessing.
-- **B**: Mechanistic Models.
-- **C**: Parameter Estimation.
-- **D**: Sensitivity Analysis.
+- **A**: Data Preprocessing
+- **B**: Mechanistic Model
+- **C**: Parameter Estimation
+- **D**: Sensitivity Analysis
 - **E**: Data Generation
 - **F**: Random Forest
 - **G**: Hybrid Model
