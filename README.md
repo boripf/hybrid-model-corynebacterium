@@ -21,8 +21,6 @@ However, the goal of the project is to understand the potential and challenges o
 
 ![Project timeline](images/TimeLine.png)
 
-Each file starts with a letter which should represent the steps of development within the developing of the model. Each step contains a .py file where the model is defined and other relevant functions. The functions are then imported to the jupyter notebook, where the output is further processed.
-
 - config
     - parameters.yml (fermentation parameters are defined)
 - data
