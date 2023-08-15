@@ -17,6 +17,8 @@ The hybrid semi-parametric model developed in this project takes biomass and $CO
 
 However, the goal of the project is to understand the potential and challenges of developing a hybrid semi-parametric model based on real experimental data. Despite the limited number of input parameters, insights can be gained into the adaptability of the model, its limitations, and the interplay between data-based and process-based approaches in complex systems.
 
+[Von Stosch, M., Oliveira, R., Peres, J., & de Azevedo, S. F. (2014). Hybrid semi-parametric modeling in process systems engineering: Past, present and future. Computers & Chemical Engineering, 60, 86-101.]
+
 ### Structure
 
 The following figure shows the steps of model development, starting with the preprocessing of the raw fermentation data, through the definition of the mechanistic and data-driven model, to the parameter estimation. Since a large amount of data is required to train the machine learning model, the Monte Carlo method is used for data generation. The database consists of two fermentations, referred to as Batch #1 and Batch #2. Batch No.1 was the first experiment with *Corynebacterium glutamicum* and has first a batch phase and second a fed-batch phase. All steps of the model development were first performed with the data from batch #1. Due to unexpected growth limitations during fermentation, the experiment was repeated as Batch No.2, which also has batch and fed-batch phases. The steps were repeated, but with some changes, which are explained in each section.
