@@ -6,9 +6,12 @@ In the pre-processing section, the fermentation data of batch no. 1 and batch no
 <img src="images/batch_no1_exp.png"
      alt="Batch No.1"
      style="float: center"
-     width="200" />
+     width="800" />
 
 **Description of Batch No.2**
-![Batch No.1](images/batch_no2_exp.png)
+<img src="images/batch_no2_exp.png"
+     alt="Batch No.2"
+     style="float: center"
+     width="800" />
 
 **Discussion**
