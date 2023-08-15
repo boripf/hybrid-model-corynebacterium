@@ -29,13 +29,13 @@ Each file starts with a letter which should represent the steps of development w
     - batch_no1 (raw data, preprocessed dataset, parameter estimation, generated batches)
     - batch_no2 (raw data, preprocessed dataset, parameter estimation, generated batches)
 - images
-- **A** Data Preprocessing.
-- **B** Mechanistic Models.
-- **C** Parameter Estimation.
-- **D** Sensitivity Analysis.
-- **E** Data Generation
-- **F** Random Forest
-- **G** Hybrid Model
+- **A**: Data Preprocessing.
+- **B**: Mechanistic Models.
+- **C**: Parameter Estimation.
+- **D**: Sensitivity Analysis.
+- **E**: Data Generation
+- **F**: Random Forest
+- **G**: Hybrid Model
 - requirements.txt (pip install -r requirements.txt - to install all required packages)
 
 Each section has its own .py file that contains functions such as the mechanistic models, sampling, or plotting. Second, Jupyter notebooks (.ipynb) are used for explanations, discussions, and the main code. In some sections there is an additional .md file that contains text only and gives more information about the section content.
